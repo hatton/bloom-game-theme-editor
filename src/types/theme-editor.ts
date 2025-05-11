@@ -28,3 +28,7 @@ export interface ParsedTheme {
   slug?: string;
   variables: Record<string, string>;
 }
+
+export interface GeneratedTheme extends Theme {
+  sourceImageUrl?: string;
+}

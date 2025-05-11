@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "../../components/ui/button";
 import {
@@ -42,6 +43,7 @@ import { Separator } from "../../components/ui/separator";
 import { toast } from "sonner";
 import VariableRow from "./VariableRow";
 import CodePreview from "./CodePreview";
+import ImageUpload from "./ImageUpload";
 import {
   cssVariables,
   factoryThemes,
@@ -52,6 +54,7 @@ import {
   generateId,
 } from "../../utils/theme-utils";
 import { ParsedTheme, Theme } from "../../types/theme-editor";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 
 interface ThemeEditorProps {
   initialThemes?: Theme[];
@@ -69,6 +72,7 @@ const ThemeEditor = ({
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [cssOutput, setCssOutput] = useState("");
+  const [activeTab, setActiveTab] = useState("editor");
 
   const selectedTheme = useMemo(
     () => themes.find((theme) => theme.id === selectedThemeId) || themes[0],
@@ -315,6 +319,31 @@ const ThemeEditor = ({
     return result;
   };
 
+  // Handle AI-generated themes
+  const handleAiGeneratedThemes = (generatedThemes: Theme[]) => {
+    if (!generatedThemes.length) return;
+    
+    // Find the first AI theme
+    const generatedTheme = generatedThemes[0];
+    
+    // Check if this theme already exists
+    const existingTheme = themes.find(theme => theme.id === generatedTheme.id);
+    
+    if (existingTheme) {
+      // Update the existing theme
+      const updatedThemes = themes.map((theme) =>
+        theme.id === generatedTheme.id ? generatedTheme : theme
+      );
+      setThemes(updatedThemes);
+    } else {
+      // Add the new theme
+      setThemes([...themes, ...generatedThemes]);
+    }
+    
+    // Select the generated theme
+    setSelectedThemeId(generatedTheme.id);
+  };
+
   // We render nothing if there's no selected theme
   if (!selectedTheme) {
     return <div>Loading theme editor...</div>;
@@ -370,309 +399,418 @@ const ThemeEditor = ({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <Label htmlFor="theme-select">Select Theme</Label>
-                  <Select
-                    value={selectedThemeId}
-                    onValueChange={handleThemeSelect}
-                  >
-                    <SelectTrigger id="theme-select" className="w-full mt-1">
-                      <SelectValue placeholder="Select a theme" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {/* Factory themes first */}
-                      <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                        Factory Themes
-                      </div>
-                      {themes
-                        .filter((theme) => theme.isFactory)
-                        .map((theme) => (
-                          <SelectItem key={theme.id} value={theme.id}>
-                            {theme.displayName}
-                          </SelectItem>
-                        ))}
-                      <Separator className="my-1" />
-                      {/* Custom themes */}
-                      {themes.filter((theme) => !theme.isFactory).length > 0 && (
-                        <>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="w-full mb-4">
+              <TabsTrigger value="editor" className="flex-1">Manual Editor</TabsTrigger>
+              <TabsTrigger value="generator" className="flex-1">AI Generator</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="editor" className="mt-0">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <Label htmlFor="theme-select">Select Theme</Label>
+                      <Select
+                        value={selectedThemeId}
+                        onValueChange={handleThemeSelect}
+                      >
+                        <SelectTrigger id="theme-select" className="w-full mt-1">
+                          <SelectValue placeholder="Select a theme" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {/* Factory themes first */}
                           <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                            Custom Themes
+                            Factory Themes
                           </div>
                           {themes
-                            .filter((theme) => !theme.isFactory)
+                            .filter((theme) => theme.isFactory)
                             .map((theme) => (
                               <SelectItem key={theme.id} value={theme.id}>
                                 {theme.displayName}
                               </SelectItem>
                             ))}
+                          <Separator className="my-1" />
+                          {/* Custom themes */}
+                          {themes.filter((theme) => !theme.isFactory).length > 0 && (
+                            <>
+                              <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                                Custom Themes
+                              </div>
+                              {themes
+                                .filter((theme) => !theme.isFactory)
+                                .map((theme) => (
+                                  <SelectItem key={theme.id} value={theme.id}>
+                                    {theme.displayName}
+                                  </SelectItem>
+                                ))}
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Theme actions */}
+                    <div className="flex gap-2 self-end">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDuplicateTheme}
+                      >
+                        Duplicate
+                      </Button>
+
+                      {!selectedTheme.isFactory && (
+                        <>
+                          <Dialog
+                            open={isRenameDialogOpen}
+                            onOpenChange={setIsRenameDialogOpen}
+                          >
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                Rename
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Rename Theme</DialogTitle>
+                                <DialogDescription>
+                                  Enter a new name for {selectedTheme.displayName}
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="py-4">
+                                <Label htmlFor="new-theme-name">New Name</Label>
+                                <Input
+                                  id="new-theme-name"
+                                  value={newThemeName}
+                                  onChange={(e) => setNewThemeName(e.target.value)}
+                                  placeholder={selectedTheme.displayName}
+                                />
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  Theme slug: {newThemeName ? slugify(newThemeName) : "..."}
+                                </p>
+                              </div>
+                              <DialogFooter>
+                                <Button
+                                  variant="outline"
+                                  onClick={() => setIsRenameDialogOpen(false)}
+                                >
+                                  Cancel
+                                </Button>
+                                <Button onClick={handleRenameTheme}>Rename</Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="sm">
+                                Delete
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Theme</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete{" "}
+                                  <span className="font-medium">
+                                    {selectedTheme.displayName}
+                                  </span>
+                                  ? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={handleDeleteTheme}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </>
                       )}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Theme actions */}
-                <div className="flex gap-2 self-end">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDuplicateTheme}
-                  >
-                    Duplicate
-                  </Button>
-
-                  {!selectedTheme.isFactory && (
-                    <>
-                      <Dialog
-                        open={isRenameDialogOpen}
-                        onOpenChange={setIsRenameDialogOpen}
-                      >
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            Rename
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Rename Theme</DialogTitle>
-                            <DialogDescription>
-                              Enter a new name for {selectedTheme.displayName}
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="py-4">
-                            <Label htmlFor="new-theme-name">New Name</Label>
-                            <Input
-                              id="new-theme-name"
-                              value={newThemeName}
-                              onChange={(e) => setNewThemeName(e.target.value)}
-                              placeholder={selectedTheme.displayName}
-                            />
-                            <p className="text-xs text-muted-foreground mt-2">
-                              Theme slug: {newThemeName ? slugify(newThemeName) : "..."}
-                            </p>
-                          </div>
-                          <DialogFooter>
-                            <Button
-                              variant="outline"
-                              onClick={() => setIsRenameDialogOpen(false)}
-                            >
-                              Cancel
-                            </Button>
-                            <Button onClick={handleRenameTheme}>Rename</Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm">
-                            Delete
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Theme</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete{" "}
-                              <span className="font-medium">
-                                {selectedTheme.displayName}
-                              </span>
-                              ? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={handleDeleteTheme}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div className="p-3 bg-muted rounded-md text-sm">
-                <div className="flex flex-wrap gap-2">
-                  <div>
-                    <span className="font-medium">Theme:</span>{" "}
-                    {selectedTheme.displayName}
+                    </div>
                   </div>
-                  <div>|</div>
-                  <div>
-                    <span className="font-medium">Slug:</span>{" "}
-                    {selectedTheme.slug}
-                  </div>
-                  {selectedTheme.isFactory && (
-                    <>
+
+                  <div className="p-3 bg-muted rounded-md text-sm">
+                    <div className="flex flex-wrap gap-2">
+                      <div>
+                        <span className="font-medium">Theme:</span>{" "}
+                        {selectedTheme.displayName}
+                      </div>
                       <div>|</div>
                       <div>
-                        <span className="text-xs bg-blue-100 text-blue-800 rounded px-1.5 py-0.5">
-                          Factory Theme
-                        </span>
+                        <span className="font-medium">Slug:</span>{" "}
+                        {selectedTheme.slug}
                       </div>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Variable editor */}
-              <div className="border rounded-md">
-                <div className="bg-muted p-3 border-b">
-                  <h3 className="text-sm font-medium">Color Variables</h3>
-                </div>
-                <ScrollArea className="h-[500px]">
-                  <div className="p-4">
-                    {cssVariables.map((variable) => (
-                      <VariableRow
-                        key={variable.name}
-                        variable={variable}
-                        value={resolvedValues[variable.name] || "#000000"}
-                        isOverridden={isVariableOverridden(variable.name)}
-                        onColorChange={(value) =>
-                          handleColorChange(variable.name, value)
-                        }
-                        onReset={() => handleResetVariable(variable.name)}
-                      />
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
-            </div>
-
-            <div>
-              <Label>Theme CSS Preview</Label>
-              <div className="mt-1">
-                <CodePreview 
-                  code={cssOutput} 
-                  onPaste={handleCssPaste}
-                />
-              </div>
-              <div className="mt-4">
-                <Label>Theme Preview</Label>
-                <div className="mt-2 grid gap-3">
-                  {/* Main theme preview */}
-                  <div className="border rounded-md overflow-hidden">
-                    <div 
-                      className="p-3 text-center font-medium"
-                      style={{
-                        backgroundColor: resolvedValues["--game-header-bg-color"] || "#000000",
-                        color: resolvedValues["--game-header-color"] || "#ffffff"
-                      }}
-                    >
-                      Header Preview
+                      {selectedTheme.isFactory && (
+                        <>
+                          <div>|</div>
+                          <div>
+                            <span className="text-xs bg-blue-100 text-blue-800 rounded px-1.5 py-0.5">
+                              Factory Theme
+                            </span>
+                          </div>
+                        </>
+                      )}
                     </div>
-                    <div 
-                      className="p-4"
-                      style={{
-                        backgroundColor: resolvedValues["--game-page-bg-color"] || "#ffffff",
-                        color: resolvedValues["--game-text-color"] || "#000000"
-                      }}
-                    >
-                      <p className="mb-3">This is sample text in the theme.</p>
-                      
-                      <div className="flex gap-2 mb-3">
-                        <button
-                          className="px-3 py-1 rounded text-sm"
-                          style={{
-                            backgroundColor: resolvedValues["--game-button-bg-color"] || "#ffffff",
-                            color: resolvedValues["--game-button-text-color"] || "#000000",
-                            border: `1px solid ${resolvedValues["--game-button-outline-color"] || "#000000"}`
-                          }}
-                        >
-                          Normal Button
-                        </button>
-                        
-                        <button
-                          className="px-3 py-1 rounded text-sm"
-                          style={{
-                            backgroundColor: resolvedValues["--game-button-correct-bg-color"] || "#000000",
-                            color: resolvedValues["--game-button-correct-color"] || "#ffffff"
-                          }}
-                        >
-                          Correct Button
-                        </button>
-                        
-                        <button
-                          className="px-3 py-1 rounded text-sm"
-                          style={{
-                            backgroundColor: resolvedValues["--game-button-wrong-bg-color"] || "#848484",
-                            color: resolvedValues["--game-button-wrong-color"] || "#ffffff"
-                          }}
-                        >
-                          Wrong Button
-                        </button>
-                      </div>
+                  </div>
 
-                      <div 
-                        className="p-2 rounded mb-3"
-                        style={{
-                          backgroundColor: resolvedValues["--game-draggable-bg-color"] || "#000000",
-                          color: resolvedValues["--game-draggable-color"] || "#ffffff",
-                          border: `1px solid ${resolvedValues["--game-draggable-target-outline-color"] || "#000000"}`
-                        }}
-                      >
-                        Draggable Element
+                  {/* Variable editor */}
+                  <div className="border rounded-md">
+                    <div className="bg-muted p-3 border-b">
+                      <h3 className="text-sm font-medium">Color Variables</h3>
+                    </div>
+                    <ScrollArea className="h-[500px]">
+                      <div className="p-4">
+                        {cssVariables.map((variable) => (
+                          <VariableRow
+                            key={variable.name}
+                            variable={variable}
+                            value={resolvedValues[variable.name] || "#000000"}
+                            isOverridden={isVariableOverridden(variable.name)}
+                            onColorChange={(value) =>
+                              handleColorChange(variable.name, value)
+                            }
+                            onReset={() => handleResetVariable(variable.name)}
+                          />
+                        ))}
                       </div>
+                    </ScrollArea>
+                  </div>
+                </div>
 
-                      <div className="flex gap-2 items-center">
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="w-5 h-5 rounded"
-                            style={{
-                              border: `2px solid ${resolvedValues["--game-checkbox-outline-color"] || "#000000"}`,
-                              backgroundColor: "transparent"
-                            }}
-                          ></div>
-                          <span style={{ color: resolvedValues["--game-checkbox-text-color"] || "#000000" }}>
-                            Normal Checkbox
-                          </span>
+                <div>
+                  <Label>Theme CSS Preview</Label>
+                  <div className="mt-1">
+                    <CodePreview 
+                      code={cssOutput} 
+                      onPaste={handleCssPaste}
+                    />
+                  </div>
+                  <div className="mt-4">
+                    <Label>Theme Preview</Label>
+                    <div className="mt-2 grid gap-3">
+                      {/* Main theme preview */}
+                      <div className="border rounded-md overflow-hidden">
+                        <div 
+                          className="p-3 text-center font-medium"
+                          style={{
+                            backgroundColor: resolvedValues["--game-header-bg-color"] || "#000000",
+                            color: resolvedValues["--game-header-color"] || "#ffffff"
+                          }}
+                        >
+                          Header Preview
                         </div>
-
-                        <div className="flex items-center gap-2 ml-4">
-                          <div 
-                            className="w-5 h-5 rounded flex items-center justify-center"
-                            style={{
-                              border: `2px solid ${resolvedValues["--game-selected-checkbox-outline-color"] || "#000000"}`,
-                              backgroundColor: resolvedValues["--game-selected-checkbox-bg-color"] || "#000000"
-                            }}
-                          >
-                            <div 
-                              className="w-3 h-3 text-xs flex items-center justify-center"
+                        <div 
+                          className="p-4"
+                          style={{
+                            backgroundColor: resolvedValues["--game-page-bg-color"] || "#ffffff",
+                            color: resolvedValues["--game-text-color"] || "#000000"
+                          }}
+                        >
+                          <p className="mb-3">This is sample text in the theme.</p>
+                          
+                          <div className="flex gap-2 mb-3">
+                            <button
+                              className="px-3 py-1 rounded text-sm"
                               style={{
-                                color: resolvedValues["--game-selected-checkbox-color"] || "#ffffff"
+                                backgroundColor: resolvedValues["--game-button-bg-color"] || "#ffffff",
+                                color: resolvedValues["--game-button-text-color"] || "#000000",
+                                border: `1px solid ${resolvedValues["--game-button-outline-color"] || "#000000"}`
                               }}
                             >
-                              ✓
+                              Normal Button
+                            </button>
+                            
+                            <button
+                              className="px-3 py-1 rounded text-sm"
+                              style={{
+                                backgroundColor: resolvedValues["--game-button-correct-bg-color"] || "#000000",
+                                color: resolvedValues["--game-button-correct-color"] || "#ffffff"
+                              }}
+                            >
+                              Correct Button
+                            </button>
+                            
+                            <button
+                              className="px-3 py-1 rounded text-sm"
+                              style={{
+                                backgroundColor: resolvedValues["--game-button-wrong-bg-color"] || "#848484",
+                                color: resolvedValues["--game-button-wrong-color"] || "#ffffff"
+                              }}
+                            >
+                              Wrong Button
+                            </button>
+                          </div>
+
+                          <div 
+                            className="p-2 rounded mb-3"
+                            style={{
+                              backgroundColor: resolvedValues["--game-draggable-bg-color"] || "#000000",
+                              color: resolvedValues["--game-draggable-color"] || "#ffffff",
+                              border: `1px solid ${resolvedValues["--game-draggable-target-outline-color"] || "#000000"}`
+                            }}
+                          >
+                            Draggable Element
+                          </div>
+
+                          <div className="flex gap-2 items-center">
+                            <div className="flex items-center gap-2">
+                              <div 
+                                className="w-5 h-5 rounded"
+                                style={{
+                                  border: `2px solid ${resolvedValues["--game-checkbox-outline-color"] || "#000000"}`,
+                                  backgroundColor: "transparent"
+                                }}
+                              ></div>
+                              <span style={{ color: resolvedValues["--game-checkbox-text-color"] || "#000000" }}>
+                                Normal Checkbox
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 ml-4">
+                              <div 
+                                className="w-5 h-5 rounded flex items-center justify-center"
+                                style={{
+                                  border: `2px solid ${resolvedValues["--game-selected-checkbox-outline-color"] || "#000000"}`,
+                                  backgroundColor: resolvedValues["--game-selected-checkbox-bg-color"] || "#000000"
+                                }}
+                              >
+                                <div 
+                                  className="w-3 h-3 text-xs flex items-center justify-center"
+                                  style={{
+                                    color: resolvedValues["--game-selected-checkbox-color"] || "#ffffff"
+                                  }}
+                                >
+                                  ✓
+                                </div>
+                              </div>
+                              <span style={{ color: resolvedValues["--game-checkbox-text-color"] || "#000000" }}>
+                                Selected Checkbox
+                              </span>
                             </div>
                           </div>
-                          <span style={{ color: resolvedValues["--game-checkbox-text-color"] || "#000000" }}>
-                            Selected Checkbox
-                          </span>
-                        </div>
-                      </div>
 
-                      <div 
-                        className="text-xs text-right mt-4"
-                        style={{
-                          color: resolvedValues["--game-page-number-color"] || "#000000"
-                        }}
-                      >
-                        Page 1
+                          <div 
+                            className="text-xs text-right mt-4"
+                            style={{
+                              color: resolvedValues["--game-page-number-color"] || "#000000"
+                            }}
+                          >
+                            Page 1
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </TabsContent>
+            
+            <TabsContent value="generator" className="mt-0">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <Label className="mb-2 block">Generate themes from an image</Label>
+                  <ImageUpload onThemeGenerated={handleAiGeneratedThemes} />
+                </div>
+                
+                <div>
+                  <Label>Theme Preview</Label>
+                  <div className="mt-2 grid gap-3">
+                    {/* Main theme preview */}
+                    <div className="border rounded-md overflow-hidden">
+                      <div 
+                        className="p-3 text-center font-medium"
+                        style={{
+                          backgroundColor: resolvedValues["--game-header-bg-color"] || "#000000",
+                          color: resolvedValues["--game-header-color"] || "#ffffff"
+                        }}
+                      >
+                        Header Preview
+                      </div>
+                      <div 
+                        className="p-4"
+                        style={{
+                          backgroundColor: resolvedValues["--game-page-bg-color"] || "#ffffff",
+                          color: resolvedValues["--game-text-color"] || "#000000"
+                        }}
+                      >
+                        <p className="mb-3">This is sample text in the theme.</p>
+                        
+                        <div className="flex gap-2 mb-3">
+                          <button
+                            className="px-3 py-1 rounded text-sm"
+                            style={{
+                              backgroundColor: resolvedValues["--game-button-bg-color"] || "#ffffff",
+                              color: resolvedValues["--game-button-text-color"] || "#000000",
+                              border: `1px solid ${resolvedValues["--game-button-outline-color"] || "#000000"}`
+                            }}
+                          >
+                            Normal Button
+                          </button>
+                          
+                          <button
+                            className="px-3 py-1 rounded text-sm"
+                            style={{
+                              backgroundColor: resolvedValues["--game-button-correct-bg-color"] || "#000000",
+                              color: resolvedValues["--game-button-correct-color"] || "#ffffff"
+                            }}
+                          >
+                            Correct Button
+                          </button>
+                          
+                          <button
+                            className="px-3 py-1 rounded text-sm"
+                            style={{
+                              backgroundColor: resolvedValues["--game-button-wrong-bg-color"] || "#848484",
+                              color: resolvedValues["--game-button-wrong-color"] || "#ffffff"
+                            }}
+                          >
+                            Wrong Button
+                          </button>
+                        </div>
+
+                        <div className="text-xs text-right mt-4">
+                          <div className="p-2 bg-muted rounded-md">
+                            <div className="font-medium">Current Theme: {selectedTheme.displayName}</div>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {Object.entries(selectedTheme.variables)
+                                .slice(0, 3)
+                                .map(([key, value]) => (
+                                  <div key={key} className="px-2 py-1 bg-background rounded-md text-xs flex items-center gap-1">
+                                    <div 
+                                      className="w-3 h-3 rounded-full" 
+                                      style={{ backgroundColor: value }}
+                                    ></div>
+                                    <span>{key.replace('--game-', '')}</span>
+                                  </div>
+                                ))}
+                              {Object.keys(selectedTheme.variables).length > 3 && (
+                                <div className="px-2 py-1 rounded-md text-xs">
+                                  +{Object.keys(selectedTheme.variables).length - 3} more
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-3 bg-muted rounded-md">
+                      <p className="text-sm">
+                        Upload or paste an image to generate WCAG-compliant themes based on the colors in the image. 
+                        Use the navigation buttons to browse through the AI-generated themes.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
