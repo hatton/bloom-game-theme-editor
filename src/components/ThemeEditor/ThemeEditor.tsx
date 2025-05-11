@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "../../components/ui/button";
 import {
@@ -52,7 +51,7 @@ import {
   getDerivationMap,
   generateId,
 } from "../../utils/theme-utils";
-import { Theme } from "../../types/theme-editor";
+import { ParsedTheme, Theme } from "../../types/theme-editor";
 
 interface ThemeEditorProps {
   initialThemes?: Theme[];
@@ -250,6 +249,70 @@ const ThemeEditor = ({
     );
 
     setThemes(updatedThemes);
+  };
+
+  // New function to parse CSS and update the theme
+  const handleCssPaste = (css: string) => {
+    if (!selectedTheme) return;
+    
+    // Don't allow changes to factory themes
+    if (selectedTheme.isFactory) {
+      toast.error("Factory themes cannot be modified. Duplicate the theme to edit it.");
+      return;
+    }
+
+    try {
+      // Parse CSS to extract variables
+      const parsedTheme = parseCssTheme(css);
+      
+      if (Object.keys(parsedTheme.variables).length === 0) {
+        toast.error("No valid CSS variables found in pasted content");
+        return;
+      }
+      
+      // Update the theme with parsed variables
+      const updatedTheme: Theme = {
+        ...selectedTheme,
+        variables: parsedTheme.variables,
+      };
+
+      const updatedThemes = themes.map((theme) =>
+        theme.id === selectedTheme.id ? updatedTheme : theme
+      );
+
+      setThemes(updatedThemes);
+      toast.success(`Updated theme with ${Object.keys(parsedTheme.variables).length} variables`);
+    } catch (error) {
+      toast.error("Failed to parse CSS. Make sure the format is correct.");
+      console.error("CSS parsing error:", error);
+    }
+  };
+
+  // Function to parse CSS theme
+  const parseCssTheme = (css: string): ParsedTheme => {
+    const result: ParsedTheme = {
+      variables: {}
+    };
+    
+    // Find theme class selector block
+    const themeMatch = css.match(/\.bloom-page\.game-theme-([a-zA-Z0-9-_]+)\s*{([^}]*)}/);
+    
+    if (!themeMatch) {
+      throw new Error("Invalid CSS format: No theme class found");
+    }
+    
+    // Extract CSS variables from the block
+    const cssBlock = themeMatch[2];
+    const variableRegex = /--([a-zA-Z0-9-_]+)\s*:\s*([^;]+);/g;
+    
+    let match;
+    while ((match = variableRegex.exec(cssBlock)) !== null) {
+      const name = `--${match[1]}`;
+      const value = match[2].trim();
+      result.variables[name] = value;
+    }
+    
+    return result;
   };
 
   // We render nothing if there's no selected theme
@@ -487,7 +550,10 @@ const ThemeEditor = ({
             <div>
               <Label>Theme CSS Preview</Label>
               <div className="mt-1">
-                <CodePreview code={cssOutput} />
+                <CodePreview 
+                  code={cssOutput} 
+                  onPaste={handleCssPaste}
+                />
               </div>
               <div className="mt-4">
                 <Label>Theme Preview</Label>

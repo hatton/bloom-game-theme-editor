@@ -22,3 +22,9 @@ export interface Theme {
 export interface HierarchyNode extends CSSVariable {
   children: HierarchyNode[];
 }
+
+export interface ParsedTheme {
+  displayName?: string;
+  slug?: string;
+  variables: Record<string, string>;
+}
