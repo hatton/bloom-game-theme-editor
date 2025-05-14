@@ -43,14 +43,14 @@ const PresetThemes = ({ onThemeSelect, resolvedValues }: PresetThemesProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-4 justify-between items-center my-4">
-        <Button variant="outline" size="sm" onClick={handlePrevTheme}>
+      <div className="flex gap-4 items-center my-4">
+        <Button variant="outline" size="sm" onClick={handlePrevTheme} className="ml-auto">
           ← Previous
         </Button>
-        <span className="font-medium">
+        <span className="font-medium px-4">
           {selectedPresetIndex + 1} of {presetThemes.length}: {currentPreset.displayName}
         </span>
-        <div className="flex gap-2">
+        <div className="flex gap-2 mr-auto">
           <Button variant="outline" size="sm" onClick={handleNextTheme}>
             Next →
           </Button>
