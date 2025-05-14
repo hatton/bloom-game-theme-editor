@@ -109,7 +109,7 @@ const PresetThemes = ({ onThemeSelect, resolvedValues }: PresetThemesProps) => {
           </div>
 
           <div className="flex gap-3 mt-6">
-            <Button onClick={handleUseTheme}>Use This Theme</Button>
+            <Button onClick={handleUseTheme}>Apply Theme</Button>
             <Button variant="outline" onClick={handleCopyCSS}>
               <Copy className="h-4 w-4 mr-2" />
               Copy CSS
@@ -117,13 +117,6 @@ const PresetThemes = ({ onThemeSelect, resolvedValues }: PresetThemesProps) => {
           </div>
         </div>
       </Card>
-
-      <div className="p-3 bg-muted rounded-md">
-        <p className="text-sm">
-          Browse through preset themes and click "Use This Theme" to apply them to your project. 
-          You can also copy the generated CSS directly with the "Copy CSS" button.
-        </p>
-      </div>
     </div>
   );
 };

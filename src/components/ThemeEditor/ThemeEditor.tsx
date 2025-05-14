@@ -62,13 +62,25 @@ interface ThemeEditorProps {
   onThemeChange?: (themes: Theme[]) => void;
 }
 
+// Create a default custom theme
+const defaultCustomTheme: Theme = {
+  id: generateId(),
+  displayName: "Custom",
+  slug: "custom",
+  isFactory: false,
+  variables: {
+    "--game-primary-color": "#9b87f5", // Purple primary
+    "--game-secondary-color": "#ffffff", // White secondary
+  },
+};
+
 const ThemeEditor = ({
   initialThemes = [],
   onThemeChange,
 }: ThemeEditorProps) => {
   // State
-  const [themes, setThemes] = useState<Theme[]>([...factoryThemes, ...initialThemes]);
-  const [selectedThemeId, setSelectedThemeId] = useState<string>("");
+  const [themes, setThemes] = useState<Theme[]>([defaultCustomTheme, ...factoryThemes, ...initialThemes]);
+  const [selectedThemeId, setSelectedThemeId] = useState<string>(defaultCustomTheme.id); // Default to custom theme
   const [newThemeName, setNewThemeName] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
@@ -81,13 +93,6 @@ const ThemeEditor = ({
   );
 
   const derivationMap = useMemo(() => getDerivationMap(), []);
-
-  // Initialize with the first theme
-  useEffect(() => {
-    if (themes.length > 0 && !selectedThemeId) {
-      setSelectedThemeId(themes[0].id);
-    }
-  }, [themes, selectedThemeId]);
 
   // Update CSS output when the selected theme changes
   useEffect(() => {
@@ -147,7 +152,7 @@ const ThemeEditor = ({
       slug,
       isFactory: false,
       variables: {
-        "--game-primary-color": "#3b82f6", // Default to a nice blue
+        "--game-primary-color": "#9b87f5", // Default to a nice blue
         "--game-secondary-color": "#ffffff",
       },
     };
@@ -533,34 +538,24 @@ const ThemeEditor = ({
                     </div>
                   </div>
 
-                  <div className="p-3 bg-muted rounded-md text-sm">
-                    <div className="flex flex-wrap gap-2">
-                      <div>
-                        <span className="font-medium">Theme:</span>{" "}
-                        {selectedTheme.displayName}
+                  {/* Removed Theme/Slug info row */}
+                  
+                  {selectedTheme.isFactory && (
+                    <div className="p-3 bg-muted rounded-md text-sm">
+                      <div className="flex flex-wrap gap-2">
+                        <div>
+                          <span className="text-xs bg-blue-100 text-blue-800 rounded px-1.5 py-0.5">
+                            Factory Theme
+                          </span>
+                        </div>
                       </div>
-                      <div>|</div>
-                      <div>
-                        <span className="font-medium">Slug:</span>{" "}
-                        {selectedTheme.slug}
-                      </div>
-                      {selectedTheme.isFactory && (
-                        <>
-                          <div>|</div>
-                          <div>
-                            <span className="text-xs bg-blue-100 text-blue-800 rounded px-1.5 py-0.5">
-                              Factory Theme
-                            </span>
-                          </div>
-                        </>
-                      )}
                     </div>
-                  </div>
+                  )}
 
                   {/* Variable editor */}
                   <div className="border rounded-md">
                     <div className="bg-muted p-3 border-b">
-                      <h3 className="text-sm font-medium">Color Variables</h3>
+                      <h3 className="text-sm font-medium">Colors</h3>
                     </div>
                     <ScrollArea className="h-[500px]">
                       <div className="p-4">
