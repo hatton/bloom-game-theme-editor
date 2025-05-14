@@ -43,7 +43,7 @@ import { Separator } from "../../components/ui/separator";
 import { toast } from "sonner";
 import VariableRow from "./VariableRow";
 import CodePreview from "./CodePreview";
-import ImageUpload from "./ImageUpload";
+import PresetThemes from "./PresetThemes";
 import {
   cssVariables,
   factoryThemes,
@@ -55,6 +55,7 @@ import {
 } from "../../utils/theme-utils";
 import { ParsedTheme, Theme } from "../../types/theme-editor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { Palette } from "lucide-react";
 
 interface ThemeEditorProps {
   initialThemes?: Theme[];
@@ -255,7 +256,34 @@ const ThemeEditor = ({
     setThemes(updatedThemes);
   };
 
-  // New function to parse CSS and update the theme
+  // Function to parse CSS theme
+  const parseCssTheme = (css: string): ParsedTheme => {
+    const result: ParsedTheme = {
+      variables: {}
+    };
+    
+    // Find theme class selector block
+    const themeMatch = css.match(/\.bloom-page\.game-theme-([a-zA-Z0-9-_]+)\s*{([^}]*)}/);
+    
+    if (!themeMatch) {
+      throw new Error("Invalid CSS format: No theme class found");
+    }
+    
+    // Extract CSS variables from the block
+    const cssBlock = themeMatch[2];
+    const variableRegex = /--([a-zA-Z0-9-_]+)\s*:\s*([^;]+);/g;
+    
+    let match;
+    while ((match = variableRegex.exec(cssBlock)) !== null) {
+      const name = `--${match[1]}`;
+      const value = match[2].trim();
+      result.variables[name] = value;
+    }
+    
+    return result;
+  };
+
+  // Handle CSS paste
   const handleCssPaste = (css: string) => {
     if (!selectedTheme) return;
     
@@ -292,56 +320,23 @@ const ThemeEditor = ({
     }
   };
 
-  // Function to parse CSS theme
-  const parseCssTheme = (css: string): ParsedTheme => {
-    const result: ParsedTheme = {
-      variables: {}
-    };
-    
-    // Find theme class selector block
-    const themeMatch = css.match(/\.bloom-page\.game-theme-([a-zA-Z0-9-_]+)\s*{([^}]*)}/);
-    
-    if (!themeMatch) {
-      throw new Error("Invalid CSS format: No theme class found");
-    }
-    
-    // Extract CSS variables from the block
-    const cssBlock = themeMatch[2];
-    const variableRegex = /--([a-zA-Z0-9-_]+)\s*:\s*([^;]+);/g;
-    
-    let match;
-    while ((match = variableRegex.exec(cssBlock)) !== null) {
-      const name = `--${match[1]}`;
-      const value = match[2].trim();
-      result.variables[name] = value;
-    }
-    
-    return result;
-  };
-
-  // Handle AI-generated themes
-  const handleAiGeneratedThemes = (generatedThemes: Theme[]) => {
-    if (!generatedThemes.length) return;
-    
-    // Find the first AI theme
-    const generatedTheme = generatedThemes[0];
-    
-    // Check if this theme already exists
-    const existingTheme = themes.find(theme => theme.id === generatedTheme.id);
+  // Use Preset Theme
+  const handleUsePresetTheme = (presetTheme: Theme) => {
+    // Check if a theme with similar ID already exists
+    const existingTheme = themes.find(theme => theme.id === presetTheme.id);
     
     if (existingTheme) {
       // Update the existing theme
       const updatedThemes = themes.map((theme) =>
-        theme.id === generatedTheme.id ? generatedTheme : theme
+        theme.id === presetTheme.id ? { ...presetTheme, isFactory: false } : theme
       );
       setThemes(updatedThemes);
+      setSelectedThemeId(presetTheme.id);
     } else {
-      // Add the new theme
-      setThemes([...themes, ...generatedThemes]);
+      // Add as a new theme
+      setThemes([...themes, { ...presetTheme, isFactory: false }]);
+      setSelectedThemeId(presetTheme.id);
     }
-    
-    // Select the generated theme
-    setSelectedThemeId(generatedTheme.id);
   };
 
   // We render nothing if there's no selected theme
@@ -402,7 +397,10 @@ const ThemeEditor = ({
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="w-full mb-4">
               <TabsTrigger value="editor" className="flex-1">Manual Editor</TabsTrigger>
-              <TabsTrigger value="generator" className="flex-1">AI Generator</TabsTrigger>
+              <TabsTrigger value="ideas" className="flex-1">
+                <Palette className="h-4 w-4 mr-2" />
+                Theme Ideas
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="editor" className="mt-0">
@@ -711,104 +709,11 @@ const ThemeEditor = ({
               </div>
             </TabsContent>
             
-            <TabsContent value="generator" className="mt-0">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <Label className="mb-2 block">Generate themes from an image</Label>
-                  <ImageUpload onThemeGenerated={handleAiGeneratedThemes} />
-                </div>
-                
-                <div>
-                  <Label>Theme Preview</Label>
-                  <div className="mt-2 grid gap-3">
-                    {/* Main theme preview */}
-                    <div className="border rounded-md overflow-hidden">
-                      <div 
-                        className="p-3 text-center font-medium"
-                        style={{
-                          backgroundColor: resolvedValues["--game-header-bg-color"] || "#000000",
-                          color: resolvedValues["--game-header-color"] || "#ffffff"
-                        }}
-                      >
-                        Header Preview
-                      </div>
-                      <div 
-                        className="p-4"
-                        style={{
-                          backgroundColor: resolvedValues["--game-page-bg-color"] || "#ffffff",
-                          color: resolvedValues["--game-text-color"] || "#000000"
-                        }}
-                      >
-                        <p className="mb-3">This is sample text in the theme.</p>
-                        
-                        <div className="flex gap-2 mb-3">
-                          <button
-                            className="px-3 py-1 rounded text-sm"
-                            style={{
-                              backgroundColor: resolvedValues["--game-button-bg-color"] || "#ffffff",
-                              color: resolvedValues["--game-button-text-color"] || "#000000",
-                              border: `1px solid ${resolvedValues["--game-button-outline-color"] || "#000000"}`
-                            }}
-                          >
-                            Normal Button
-                          </button>
-                          
-                          <button
-                            className="px-3 py-1 rounded text-sm"
-                            style={{
-                              backgroundColor: resolvedValues["--game-button-correct-bg-color"] || "#000000",
-                              color: resolvedValues["--game-button-correct-color"] || "#ffffff"
-                            }}
-                          >
-                            Correct Button
-                          </button>
-                          
-                          <button
-                            className="px-3 py-1 rounded text-sm"
-                            style={{
-                              backgroundColor: resolvedValues["--game-button-wrong-bg-color"] || "#848484",
-                              color: resolvedValues["--game-button-wrong-color"] || "#ffffff"
-                            }}
-                          >
-                            Wrong Button
-                          </button>
-                        </div>
-
-                        <div className="text-xs text-right mt-4">
-                          <div className="p-2 bg-muted rounded-md">
-                            <div className="font-medium">Current Theme: {selectedTheme.displayName}</div>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {Object.entries(selectedTheme.variables)
-                                .slice(0, 3)
-                                .map(([key, value]) => (
-                                  <div key={key} className="px-2 py-1 bg-background rounded-md text-xs flex items-center gap-1">
-                                    <div 
-                                      className="w-3 h-3 rounded-full" 
-                                      style={{ backgroundColor: value }}
-                                    ></div>
-                                    <span>{key.replace('--game-', '')}</span>
-                                  </div>
-                                ))}
-                              {Object.keys(selectedTheme.variables).length > 3 && (
-                                <div className="px-2 py-1 rounded-md text-xs">
-                                  +{Object.keys(selectedTheme.variables).length - 3} more
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="p-3 bg-muted rounded-md">
-                      <p className="text-sm">
-                        Upload or paste an image to generate WCAG-compliant themes based on the colors in the image. 
-                        Use the navigation buttons to browse through the AI-generated themes.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <TabsContent value="ideas" className="mt-0">
+              <PresetThemes 
+                onThemeSelect={handleUsePresetTheme}
+                resolvedValues={resolvedValues}
+              />
             </TabsContent>
           </Tabs>
         </CardContent>

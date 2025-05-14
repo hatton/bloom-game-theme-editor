@@ -1,0 +1,50 @@
+
+[
+  {
+    "id": "nature-vibes",
+    "displayName": "Nature Vibes",
+    "slug": "nature-vibes",
+    "isFactory": false,
+    "variables": {
+      "--game-primary-color": "#2D6A4F",
+      "--game-secondary-color": "#ECF4EB",
+      "--game-button-bg-color": "#76B947",
+      "--game-button-text-color": "#FFFFFF",
+      "--game-header-bg-color": "#40916C",
+      "--game-header-color": "#FFFFFF",
+      "--game-button-correct-bg-color": "#44A36F",
+      "--game-button-wrong-bg-color": "#AE4C33"
+    }
+  },
+  {
+    "id": "ocean-breeze",
+    "displayName": "Ocean Breeze",
+    "slug": "ocean-breeze",
+    "isFactory": false,
+    "variables": {
+      "--game-primary-color": "#1A535C",
+      "--game-secondary-color": "#F7FFF7",
+      "--game-text-color": "#1A535C",
+      "--game-button-bg-color": "#4ECDC4",
+      "--game-button-text-color": "#FFFFFF",
+      "--game-header-bg-color": "#3D7B80",
+      "--game-header-color": "#FFFFFF"
+    }
+  },
+  {
+    "id": "sunset-glow",
+    "displayName": "Sunset Glow",
+    "slug": "sunset-glow",
+    "isFactory": false,
+    "variables": {
+      "--game-primary-color": "#854D27",
+      "--game-secondary-color": "#FFF8ED",
+      "--game-button-bg-color": "#F78154",
+      "--game-button-text-color": "#FFFFFF",
+      "--game-header-bg-color": "#AC6B33",
+      "--game-header-color": "#FFFFFF",
+      "--game-button-correct-bg-color": "#4D8B31",
+      "--game-button-wrong-bg-color": "#C14953"
+    }
+  }
+]
