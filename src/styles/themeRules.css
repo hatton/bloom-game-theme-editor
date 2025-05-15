@@ -1,0 +1,25 @@
+
+:root {
+  --game-primary-bg-color: var(--game-primary-color);
+  --game-text-color: var(--game-primary-color);
+  --game-page-number-color: var(--game-text-color);
+  --game-page-bg-color: var(--game-secondary-color);
+  --game-button-text-color: var(--game-primary-color);
+  --game-button-bg-color: var(--game-secondary-color);
+  --game-button-correct-color: var(--game-secondary-color);
+  --game-button-correct-bg-color: var(--game-primary-bg-color);
+  --game-button-outline-color: var(--game-button-text-color);
+  --game-draggable-color: var(--game-secondary-color);
+  --game-draggable-bg-color: var(--game-primary-bg-color);
+  --game-draggable-target-outline-color: var(--game-draggable-bg-color);
+  --game-header-color: var(--game-secondary-color);
+  --game-header-bg-color: var(--game-primary-bg-color);
+  --game-control-button-color: var(--game-secondary-color);
+  --game-control-button-bg-color: var(--game-primary-bg-color);
+  --game-checkbox-text-color: var(--game-text-color);
+  --game-checkbox-outline-color: var(--game-checkbox-text-color);
+  --game-selected-checkbox-color: var(--game-button-correct-color);
+  --game-selected-checkbox-bg-color: var(--game-button-correct-bg-color);
+  --game-selected-checkbox-outline-color: var(--game-selected-checkbox-bg-color);
+  --page-background-color: var(--game-page-bg-color);
+}

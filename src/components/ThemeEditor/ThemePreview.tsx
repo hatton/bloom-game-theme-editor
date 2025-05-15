@@ -1,5 +1,6 @@
 
-import React from "react";
+import React, { useMemo } from "react";
+import "../../styles/themeRules.css";
 
 interface ThemePreviewProps {
   resolvedValues: Record<string, string>;
@@ -7,6 +8,30 @@ interface ThemePreviewProps {
 }
 
 const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
+  // Create a style element with CSS variables
+  const themeStyle = useMemo(() => {
+    const styleElement = document.createElement('style');
+    
+    // Create CSS rule with all the variables
+    let cssText = ':root {\n';
+    Object.entries(resolvedValues).forEach(([key, value]) => {
+      cssText += `  ${key}: ${value};\n`;
+    });
+    cssText += '}';
+    
+    styleElement.textContent = cssText;
+    return styleElement;
+  }, [resolvedValues]);
+
+  // Apply the theme style to the document when the component mounts
+  // and remove it when it unmounts
+  React.useEffect(() => {
+    document.head.appendChild(themeStyle);
+    return () => {
+      document.head.removeChild(themeStyle);
+    };
+  }, [themeStyle]);
+
   return (
     <div className="border rounded-md overflow-hidden">
       {themeTitle && (

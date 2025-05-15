@@ -1,4 +1,6 @@
+
 import { CSSVariable, Theme, HierarchyNode } from "../types/theme-editor";
+import "../styles/themeRules.css";
 
 // Default values for CSS variables
 export const defaultValues = {
@@ -214,11 +216,37 @@ export const factoryThemes: Theme[] = [
 export const getDerivationMap = (): Record<string, string> => {
   const derivationMap: Record<string, string> = {};
   
-  cssVariables.forEach(variable => {
-    if (variable.parent) {
-      derivationMap[variable.name] = variable.parent;
+  // Get all CSS rules that might define variable relationships
+  const styleSheet = document.styleSheets[0]; // Assuming themeRules.css is loaded
+  
+  try {
+    // First populate from cssVariables parent relationships
+    cssVariables.forEach(variable => {
+      if (variable.parent) {
+        derivationMap[variable.name] = variable.parent;
+      }
+    });
+    
+    // Then try to enhance with actual CSS rules if possible
+    if (styleSheet) {
+      for (let i = 0; i < styleSheet.cssRules.length; i++) {
+        const rule = styleSheet.cssRules[i];
+        if (rule instanceof CSSStyleRule && rule.selectorText === ':root') {
+          const cssText = rule.style.cssText;
+          const varRegex = /--([a-z-]+):\s*var\(--([a-z-]+)\)/g;
+          let match;
+          
+          while ((match = varRegex.exec(cssText)) !== null) {
+            const targetVar = `--${match[1]}`;
+            const sourceVar = `--${match[2]}`;
+            derivationMap[targetVar] = sourceVar;
+          }
+        }
+      }
     }
-  });
+  } catch (e) {
+    console.warn("Could not access stylesheet rules, using default derivation map", e);
+  }
 
   return derivationMap;
 };
