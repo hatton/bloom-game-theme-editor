@@ -3,7 +3,6 @@ import { Copy } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import "../../styles/themeRules.css";
-import ContrastChecker from "./ContrastChecker";
 
 interface ThemePreviewProps {
   resolvedValues: Record<string, string>;
@@ -220,9 +219,6 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
           </div>
         </div>
       </div>
-      
-      {/* Add contrast checker below the preview */}
-      <ContrastChecker resolvedValues={resolvedValues} />
     </div>
   );
 };

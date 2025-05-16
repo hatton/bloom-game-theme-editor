@@ -44,6 +44,7 @@ import VariableRow from "./VariableRow";
 import CodePreview from "./CodePreview";
 import PresetThemes from "./PresetThemes";
 import ThemePreview from "./ThemePreview";
+import ContrastChecker from "./ContrastChecker";
 import {
   cssVariables,
   factoryThemes,
@@ -589,6 +590,11 @@ const ThemeEditor = ({
                     </div>
                   </div>
                 </div>
+              </div>
+              
+              {/* Contrast Checker spanning full width */}
+              <div className="mt-6">
+                <ContrastChecker resolvedValues={resolvedValues} />
               </div>
             </TabsContent>
             
