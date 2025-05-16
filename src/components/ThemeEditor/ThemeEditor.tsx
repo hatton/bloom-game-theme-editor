@@ -367,7 +367,7 @@ const ThemeEditor = ({
         </CardHeader>
         <CardContent>
           {/* Row 1: Theme Selector and Actions */}
-          <div className="flex flex-wrap items-center gap-4 mb-6">
+          <div className="flex flex-wrap items-center gap-2 mb-6">
             <div className="flex-1 min-w-0 sm:max-w-xs md:max-w-sm">
               <Select value={selectedThemeId} onValueChange={handleThemeSelect}>
                 <SelectTrigger id="theme-select" className="w-full mt-1">
@@ -498,17 +498,15 @@ const ThemeEditor = ({
                   ))}
                 </div>
               </ScrollArea>
-            </div>
-
+            </div>{" "}
             {/* Column 2: CSS and Preview (stacked) */}
-            <div className="flex flex-col gap-6">
-              {" "}
-              {/* Preview */}
+            <div className="flex flex-col gap-0">
+              {/* Row 1 */}
               <div className="p-4 flex-1 overflow-auto">
                 <ThemePreview resolvedValues={resolvedValues} />
               </div>
-              {/* CSS View and Contrast Checker side by side */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* Row 2 */}
+              <div className="grid grid-cols-2">
                 <div className="p-4">
                   <ContrastChecker resolvedValues={resolvedValues} />
                 </div>

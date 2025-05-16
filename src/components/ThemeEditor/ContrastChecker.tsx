@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import { HelpCircle } from "lucide-react";
+import { Card } from "../ui/card";
 
 interface ContrastElement {
   name: string;
@@ -82,30 +83,9 @@ const ContrastChecker = ({ resolvedValues }: ContrastCheckerProps) => {
   ];
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
+    <Card className="relative overflow-hidden">
+      <div className="flex items-center justify-between bg-muted p-2 border-b">
         <h3 className="text-sm font-medium">WCAG Contrast Check</h3>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <HelpCircle className="h-4 w-4 text-muted-foreground" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="max-w-xs">
-                Good (AA): Minimum ratio of 4.5:1 for small text, 3:1 for large
-                text.
-                <br />
-                Best (AAA): Minimum ratio of 7:1 for small text, 4.5:1 for large
-                text.
-                <br />
-                <br />
-                Small text: 16px and under
-                <br />
-                Large text: Above 18.66px
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
       </div>
       <div className="border rounded-md overflow-auto">
         <Table>
@@ -113,12 +93,8 @@ const ContrastChecker = ({ resolvedValues }: ContrastCheckerProps) => {
             <TableRow>
               <TableHead>Element</TableHead>
               <TableHead>Contrast</TableHead>
-              <TableHead className="whitespace-nowrap">
-                Good (WCAG AA)
-              </TableHead>
-              <TableHead className="whitespace-nowrap">
-                Best (WCAG AAA)
-              </TableHead>
+              <TableHead className="whitespace-nowrap">Good (AA)</TableHead>
+              <TableHead className="whitespace-nowrap">Best (AAA)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -166,7 +142,7 @@ const ContrastChecker = ({ resolvedValues }: ContrastCheckerProps) => {
           </TableBody>
         </Table>
       </div>
-    </div>
+    </Card>
   );
 };
 
