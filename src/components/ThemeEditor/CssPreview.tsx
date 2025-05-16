@@ -1,15 +1,15 @@
 import React from "react";
-import { Button } from "../../components/ui/button";
+import { Button } from "../ui/button";
 import { Copy, ClipboardPaste } from "lucide-react";
-import { Card } from "../../components/ui/card";
+import { Card } from "../ui/card";
 import { toast } from "sonner";
 
-interface CodePreviewProps {
+interface CssPreviewProps {
   code: string;
   onPaste?: (css: string) => void;
 }
 
-const CssPreview = ({ code, onPaste }: CodePreviewProps) => {
+const CssPreview = ({ code, onPaste }: CssPreviewProps) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(code);
     toast.success("CSS copied to clipboard");
@@ -31,7 +31,7 @@ const CssPreview = ({ code, onPaste }: CodePreviewProps) => {
   return (
     <Card className="relative overflow-hidden">
       <div className="flex items-center justify-between bg-muted p-2 border-b">
-        <h3 className="text-sm font-medium">Generated CSS</h3>
+        <h3 className="text-sm font-medium">CSS</h3>
         <div className="flex gap-2">
           <Button
             variant="ghost"

@@ -31,7 +31,7 @@ import { ScrollArea } from "../../components/ui/scroll-area";
 import { Separator } from "../../components/ui/separator";
 import { toast } from "sonner";
 import VariableRow from "./VariableRow";
-import CssPreview from "./CodePreview";
+import CssPreview from "./CssPreview";
 import ThemePreview from "./ThemePreview";
 import ContrastChecker from "./ContrastChecker";
 import {
@@ -271,7 +271,7 @@ const ThemeEditor = ({
       // Update the theme with parsed variables
       const updatedTheme: Theme = {
         ...selectedTheme,
-        variables: parsedTheme.variables,
+        ...parsedTheme,
       };
 
       const updatedThemes = themes.map((theme) =>
@@ -279,6 +279,8 @@ const ThemeEditor = ({
       );
 
       setThemes(updatedThemes);
+      // make sure this new theme is selected
+      setSelectedThemeId(updatedTheme.id);
       toast.success(
         `Updated theme with ${Object.keys(parsedTheme.variables).length} variables`
       );
@@ -503,7 +505,7 @@ const ThemeEditor = ({
             </div>
 
             <div>
-              <div className="mt-1">
+              <div className="mt-1 ml-auto">
                 <CssPreview code={cssOutput} onPaste={handleCssPaste} />
               </div>
               <br />

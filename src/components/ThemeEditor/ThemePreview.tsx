@@ -5,6 +5,10 @@ import { toast } from "sonner";
 import "../../styles/themeRules.css";
 import { Card, CardContent, CardHeader } from "../ui/card";
 
+const HEADER_TEXT_SIZE = "24px";
+const BUTTON_TEXT_SIZE = "20px"; // also for plain text and draggable text
+const CHECKBOX_TEXT_SIZE = "14px";
+
 interface ThemePreviewProps {
   resolvedValues: Record<string, string>;
   themeTitle?: string;
@@ -80,9 +84,8 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
       toast.error("Failed to copy preview");
     }
   };
-
   return (
-    <Card className="relative overflow-hidden">
+    <Card className="relative overflow-hidden w-[150%]">
       <div className="flex items-center justify-between bg-muted p-2 border-b">
         <h3 className="text-sm font-medium">Preview</h3>
         {themeTitle && <div className="text-sm font-medium">{themeTitle}</div>}
@@ -106,6 +109,7 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
               backgroundColor:
                 resolvedValues["--game-header-bg-color"] || "#000000",
               color: resolvedValues["--game-header-color"] || "#ffffff",
+              fontSize: HEADER_TEXT_SIZE,
             }}
           >
             Instructions in the Header
@@ -118,6 +122,7 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
                 backgroundColor:
                   resolvedValues["--game-header-bg-color"] || "#000000",
                 color: resolvedValues["--game-header-color"] || "#ffffff",
+                fontSize: HEADER_TEXT_SIZE,
               }}
             >
               {themeTitle}
@@ -131,7 +136,9 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
               color: resolvedValues["--game-text-color"] || "#000000",
             }}
           >
-            <p className="mb-3">This is sample text in the theme.</p>
+            <p className="mb-3" style={{ fontSize: BUTTON_TEXT_SIZE }}>
+              This is sample text in the theme.
+            </p>
 
             <div className="flex gap-2 mb-3">
               <button
@@ -142,6 +149,7 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
                   color:
                     resolvedValues["--game-button-text-color"] || "#000000",
                   border: `1px solid ${resolvedValues["--game-button-outline-color"] || "#000000"}`,
+                  fontSize: BUTTON_TEXT_SIZE,
                 }}
               >
                 Normal Button
@@ -155,6 +163,7 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
                     "#000000",
                   color:
                     resolvedValues["--game-button-correct-color"] || "#ffffff",
+                  fontSize: BUTTON_TEXT_SIZE,
                 }}
               >
                 Correct Button
@@ -167,6 +176,7 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
                     resolvedValues["--game-button-wrong-bg-color"] || "#848484",
                   color:
                     resolvedValues["--game-button-wrong-color"] || "#ffffff",
+                  fontSize: BUTTON_TEXT_SIZE,
                 }}
               >
                 Wrong Button
@@ -180,6 +190,7 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
                   resolvedValues["--game-draggable-bg-color"] || "#000000",
                 color: resolvedValues["--game-draggable-color"] || "#ffffff",
                 border: `1px solid ${resolvedValues["--game-draggable-target-outline-color"] || "#000000"}`,
+                fontSize: BUTTON_TEXT_SIZE,
               }}
             >
               Draggable Element
@@ -198,6 +209,7 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
                   style={{
                     color:
                       resolvedValues["--game-checkbox-text-color"] || "#000000",
+                    fontSize: CHECKBOX_TEXT_SIZE,
                   }}
                 >
                   Normal Checkbox
@@ -229,6 +241,7 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
                   style={{
                     color:
                       resolvedValues["--game-checkbox-text-color"] || "#000000",
+                    fontSize: CHECKBOX_TEXT_SIZE,
                   }}
                 >
                   Selected Checkbox
@@ -240,6 +253,7 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
               className="text-xs text-right mt-4"
               style={{
                 color: resolvedValues["--game-page-number-color"] || "#000000",
+                fontSize: CHECKBOX_TEXT_SIZE,
               }}
             >
               Page 1

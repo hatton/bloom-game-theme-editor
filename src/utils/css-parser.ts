@@ -10,20 +10,24 @@ export const parseCssTheme = (css: string): Theme => {
   };
 
   // Find theme class selector block
-  const themeMatch = css.match(
+  const themePartsMatch = css.match(
     /\.bloom-page\.game-theme-([a-zA-Z0-9-_]+)\s*{([^}]*)}/
   );
 
-  if (!themeMatch) {
-    throw new Error("Invalid CSS format: No theme class found");
+  if (!themePartsMatch) {
+    throw new Error(
+      "Could not make sense of the CSS. It should be of the form: .bloom-page.game-theme-<theme-name> { ... }"
+    );
   }
+  result.slug = themePartsMatch[1];
+  result.displayName = result.slug.replace(/-/g, " ");
 
   // Extract CSS variables from the block
-  const cssBlock = themeMatch[2];
+  const rulesBlock = themePartsMatch[2];
   const variableRegex = /--([a-zA-Z0-9-_]+)\s*:\s*([^;]+);/g;
 
   let match;
-  while ((match = variableRegex.exec(cssBlock)) !== null) {
+  while ((match = variableRegex.exec(rulesBlock)) !== null) {
     const name = `--${match[1]}`;
     const value = match[2].trim();
     result.variables[name] = value;
