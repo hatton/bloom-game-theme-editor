@@ -26,23 +26,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "../../components/ui/alert-dialog";
+
 import { ScrollArea } from "../../components/ui/scroll-area";
 import { Separator } from "../../components/ui/separator";
 import { toast } from "sonner";
 import VariableRow from "./VariableRow";
-import CodePreview from "./CodePreview";
-import PresetThemes from "./PresetThemes";
+import CssPreview from "./CodePreview";
 import ThemePreview from "./ThemePreview";
 import ContrastChecker from "./ContrastChecker";
 import {
@@ -54,14 +43,8 @@ import {
   getDerivationMap,
   generateId,
 } from "../../utils/theme-utils";
-import { ParsedTheme, Theme } from "../../types/theme-editor";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../../components/ui/tabs";
-import { Palette } from "lucide-react";
+import { Theme } from "../../types/theme-editor";
+import { parseCssTheme } from "../../utils/css-parser";
 
 interface ThemeEditorProps {
   initialThemes?: Theme[];
@@ -263,35 +246,6 @@ const ThemeEditor = ({
     setThemes(updatedThemes);
   };
 
-  // Function to parse CSS theme
-  const parseCssTheme = (css: string): ParsedTheme => {
-    const result: ParsedTheme = {
-      variables: {},
-    };
-
-    // Find theme class selector block
-    const themeMatch = css.match(
-      /\.bloom-page\.game-theme-([a-zA-Z0-9-_]+)\s*{([^}]*)}/
-    );
-
-    if (!themeMatch) {
-      throw new Error("Invalid CSS format: No theme class found");
-    }
-
-    // Extract CSS variables from the block
-    const cssBlock = themeMatch[2];
-    const variableRegex = /--([a-zA-Z0-9-_]+)\s*:\s*([^;]+);/g;
-
-    let match;
-    while ((match = variableRegex.exec(cssBlock)) !== null) {
-      const name = `--${match[1]}`;
-      const value = match[2].trim();
-      result.variables[name] = value;
-    }
-
-    return result;
-  };
-
   // Handle CSS paste
   const handleCssPaste = (css: string) => {
     if (!selectedTheme) return;
@@ -308,6 +262,7 @@ const ThemeEditor = ({
       // Parse CSS to extract variables
       const parsedTheme = parseCssTheme(css);
 
+      // If the theme has no variables, show an error
       if (Object.keys(parsedTheme.variables).length === 0) {
         toast.error("No valid CSS variables found in pasted content");
         return;
@@ -549,7 +504,7 @@ const ThemeEditor = ({
 
             <div>
               <div className="mt-1">
-                <CodePreview code={cssOutput} onPaste={handleCssPaste} />
+                <CssPreview code={cssOutput} onPaste={handleCssPaste} />
               </div>
               <br />
               <ThemePreview resolvedValues={resolvedValues} />

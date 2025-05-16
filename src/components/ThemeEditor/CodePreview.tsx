@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "../../components/ui/button";
 import { Copy, ClipboardPaste } from "lucide-react";
@@ -10,7 +9,7 @@ interface CodePreviewProps {
   onPaste?: (css: string) => void;
 }
 
-const CodePreview = ({ code, onPaste }: CodePreviewProps) => {
+const CssPreview = ({ code, onPaste }: CodePreviewProps) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(code);
     toast.success("CSS copied to clipboard");
@@ -61,4 +60,4 @@ const CodePreview = ({ code, onPaste }: CodePreviewProps) => {
   );
 };
 
-export default CodePreview;
+export default CssPreview;
