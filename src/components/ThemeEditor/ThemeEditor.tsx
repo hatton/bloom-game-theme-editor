@@ -502,21 +502,21 @@ const ThemeEditor = ({
 
             {/* Column 2: CSS and Preview (stacked) */}
             <div className="flex flex-col gap-6">
+              {" "}
+              {/* Preview */}
               <div className="p-4 flex-1 overflow-auto">
-                <CssView code={cssOutput} onPaste={handleCssPaste} />
+                <ThemePreview resolvedValues={resolvedValues} />
               </div>
-
-              <div className="flex flex-col gap-6">
-                <div className="p-4 flex-1 overflow-auto">
-                  <ThemePreview resolvedValues={resolvedValues} />
+              {/* CSS View and Contrast Checker side by side */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4">
+                  <ContrastChecker resolvedValues={resolvedValues} />
+                </div>
+                <div className="p-4">
+                  <CssView code={cssOutput} onPaste={handleCssPaste} />
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Contrast Checker spanning full width */}
-          <div className="mt-6">
-            <ContrastChecker resolvedValues={resolvedValues} />
           </div>
         </CardContent>
       </Card>

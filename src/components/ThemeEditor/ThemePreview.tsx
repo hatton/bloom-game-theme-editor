@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import "../../styles/themeRules.css";
 import { Card, CardContent, CardHeader } from "../ui/card";
 
-const HEADER_TEXT_SIZE = "24px";
+const HEADER_TEXT_SIZE = "16px";
 const BUTTON_TEXT_SIZE = "20px"; // also for plain text and draggable text
 const CHECKBOX_TEXT_SIZE = "16px";
 
@@ -137,7 +137,7 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
             }}
           >
             <p className="mb-3" style={{ fontSize: BUTTON_TEXT_SIZE }}>
-              This is sample text in the theme.
+              Unmoving text placed on the page.
             </p>
 
             <div className="flex gap-2 mb-3">
@@ -184,7 +184,7 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
             </div>
 
             <div
-              className="p-2 rounded mb-3"
+              className="p-2 rounded mb-3 inline-block"
               style={{
                 backgroundColor:
                   resolvedValues["--game-draggable-bg-color"] || "#000000",
