@@ -4,12 +4,12 @@ import { Copy, ClipboardPaste } from "lucide-react";
 import { Card } from "../ui/card";
 import { toast } from "sonner";
 
-interface CssPreviewProps {
+interface CssViewProps {
   code: string;
   onPaste?: (css: string) => void;
 }
 
-const CssPreview = ({ code, onPaste }: CssPreviewProps) => {
+const CssView = ({ code, onPaste }: CssViewProps) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(code);
     toast.success("CSS copied to clipboard");
@@ -60,4 +60,4 @@ const CssPreview = ({ code, onPaste }: CssPreviewProps) => {
   );
 };
 
-export default CssPreview;
+export default CssView;

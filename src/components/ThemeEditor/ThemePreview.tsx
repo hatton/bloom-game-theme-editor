@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader } from "../ui/card";
 
 const HEADER_TEXT_SIZE = "24px";
 const BUTTON_TEXT_SIZE = "20px"; // also for plain text and draggable text
-const CHECKBOX_TEXT_SIZE = "14px";
+const CHECKBOX_TEXT_SIZE = "16px";
 
 interface ThemePreviewProps {
   resolvedValues: Record<string, string>;
@@ -85,7 +85,7 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
     }
   };
   return (
-    <Card className="relative overflow-hidden w-[150%]">
+    <Card className="relative overflow-hidden">
       <div className="flex items-center justify-between bg-muted p-2 border-b">
         <h3 className="text-sm font-medium">Preview</h3>
         {themeTitle && <div className="text-sm font-medium">{themeTitle}</div>}

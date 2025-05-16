@@ -31,7 +31,7 @@ import { ScrollArea } from "../../components/ui/scroll-area";
 import { Separator } from "../../components/ui/separator";
 import { toast } from "sonner";
 import VariableRow from "./VariableRow";
-import CssPreview from "./CssPreview";
+import CssView from "./CssView";
 import ThemePreview from "./ThemePreview";
 import ContrastChecker from "./ContrastChecker";
 import {
@@ -366,150 +366,151 @@ const ThemeEditor = ({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 gap-6 max-w-[870px]">
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  {/* <Label htmlFor="theme-select">Select Theme</Label> */}
-                  <Select
-                    value={selectedThemeId}
-                    onValueChange={handleThemeSelect}
-                  >
-                    <SelectTrigger id="theme-select" className="w-full mt-1">
-                      <SelectValue placeholder="Select a theme" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {/* Factory themes first */}
+          {/* Row 1: Theme Selector and Actions */}
+          <div className="flex flex-wrap items-center gap-4 mb-6">
+            <div className="flex-1 min-w-0 sm:max-w-xs md:max-w-sm">
+              <Select value={selectedThemeId} onValueChange={handleThemeSelect}>
+                <SelectTrigger id="theme-select" className="w-full mt-1">
+                  <SelectValue placeholder="Select a theme" />
+                </SelectTrigger>
+                <SelectContent>
+                  {/* Factory themes first */}
+                  <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                    Factory Themes
+                  </div>
+                  {themes
+                    .filter((theme) => theme.isFactory)
+                    .map((theme) => (
+                      <SelectItem key={theme.id} value={theme.id}>
+                        {theme.displayName}
+                      </SelectItem>
+                    ))}
+                  <Separator className="my-1" />
+                  {/* Custom themes */}
+                  {themes.filter((theme) => !theme.isFactory).length > 0 && (
+                    <>
                       <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                        Factory Themes
+                        Custom Themes
                       </div>
                       {themes
-                        .filter((theme) => theme.isFactory)
+                        .filter((theme) => !theme.isFactory)
                         .map((theme) => (
                           <SelectItem key={theme.id} value={theme.id}>
                             {theme.displayName}
                           </SelectItem>
                         ))}
-                      <Separator className="my-1" />
-                      {/* Custom themes */}
-                      {themes.filter((theme) => !theme.isFactory).length >
-                        0 && (
-                        <>
-                          <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                            Custom Themes
-                          </div>
-                          {themes
-                            .filter((theme) => !theme.isFactory)
-                            .map((theme) => (
-                              <SelectItem key={theme.id} value={theme.id}>
-                                {theme.displayName}
-                              </SelectItem>
-                            ))}
-                        </>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Theme actions */}
-                <div className="flex gap-2 self-end">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDuplicateTheme}
-                  >
-                    Duplicate
-                  </Button>
-
-                  {!selectedTheme.isFactory && (
-                    <>
-                      <Dialog
-                        open={isRenameDialogOpen}
-                        onOpenChange={setIsRenameDialogOpen}
-                      >
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            Rename
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Rename Theme</DialogTitle>
-                            <DialogDescription>
-                              Enter a new name for {selectedTheme.displayName}
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="py-4">
-                            <Label htmlFor="new-theme-name">New Name</Label>
-                            <Input
-                              id="new-theme-name"
-                              value={newThemeName}
-                              onChange={(e) => setNewThemeName(e.target.value)}
-                              placeholder={selectedTheme.displayName}
-                            />
-                            <p className="text-xs text-muted-foreground mt-2">
-                              Theme slug:{" "}
-                              {newThemeName ? slugify(newThemeName) : "..."}
-                            </p>
-                          </div>
-                          <DialogFooter>
-                            <Button
-                              variant="outline"
-                              onClick={() => setIsRenameDialogOpen(false)}
-                            >
-                              Cancel
-                            </Button>
-                            <Button onClick={handleRenameTheme}>Rename</Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
                     </>
                   )}
-                </div>
-              </div>
-
-              {selectedTheme.isFactory && (
-                <div className="p-3 bg-muted rounded-md text-sm">
-                  <div className="flex flex-wrap gap-2">
-                    <div>
-                      <span className="text-xs bg-blue-100 text-blue-800 rounded px-1.5 py-0.5">
-                        Factory Theme
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Variable editor */}
-              <div className="border rounded-md w-[430px]">
-                <div className="bg-muted p-3 border-b">
-                  <h3 className="text-sm font-medium">Colors</h3>
-                </div>
-                <ScrollArea className="h-[600px]">
-                  <div className="p-4">
-                    {cssVariables.map((variable) => (
-                      <VariableRow
-                        key={variable.name}
-                        variable={variable}
-                        value={resolvedValues[variable.name] || "#000000"}
-                        isOverridden={isVariableOverridden(variable.name)}
-                        onColorChange={(value) =>
-                          handleColorChange(variable.name, value)
-                        }
-                        onReset={() => handleResetVariable(variable.name)}
-                      />
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div>
-              <div className="mt-1 ml-auto">
-                <CssPreview code={cssOutput} onPaste={handleCssPaste} />
+            {/* Theme actions */}
+            <div className="flex gap-2 self-start sm:self-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDuplicateTheme}
+              >
+                Duplicate
+              </Button>
+
+              {!selectedTheme.isFactory && (
+                <>
+                  <Dialog
+                    open={isRenameDialogOpen}
+                    onOpenChange={setIsRenameDialogOpen}
+                  >
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        Rename
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Rename Theme</DialogTitle>
+                        <DialogDescription>
+                          Enter a new name for {selectedTheme.displayName}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="py-4">
+                        <Label htmlFor="new-theme-name">New Name</Label>
+                        <Input
+                          id="new-theme-name"
+                          value={newThemeName}
+                          onChange={(e) => setNewThemeName(e.target.value)}
+                          placeholder={selectedTheme.displayName}
+                        />
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Theme slug:{" "}
+                          {newThemeName ? slugify(newThemeName) : "..."}
+                        </p>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsRenameDialogOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button onClick={handleRenameTheme}>Rename</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Factory Theme Notice (if applicable) */}
+          {selectedTheme.isFactory && (
+            <div className="p-3 bg-muted rounded-md text-sm mb-6">
+              <div className="flex flex-wrap gap-2">
+                <div>
+                  <span className="text-xs bg-blue-100 text-blue-800 rounded px-1.5 py-0.5">
+                    Factory Theme
+                  </span>
+                </div>
               </div>
-              <br />
-              <ThemePreview resolvedValues={resolvedValues} />
+            </div>
+          )}
+
+          {/* Main Content Grid (Colors | CSS / Preview) */}
+          <div className="grid md:grid-cols-[minmax(0,_1fr)_minmax(0,_1fr)] lg:grid-cols-[minmax(300px,_430px)_minmax(0,_1fr)] gap-6 mb-6">
+            {/* Column 1: Colors */}
+            <div className="border rounded-md">
+              <div className="bg-muted p-3 border-b">
+                <h3 className="text-sm font-medium">Colors</h3>
+              </div>
+              <ScrollArea className="h-[600px]">
+                <div className="p-4">
+                  {cssVariables.map((variable) => (
+                    <VariableRow
+                      key={variable.name}
+                      variable={variable}
+                      value={resolvedValues[variable.name] || "#000000"}
+                      isOverridden={isVariableOverridden(variable.name)}
+                      onColorChange={(value) =>
+                        handleColorChange(variable.name, value)
+                      }
+                      onReset={() => handleResetVariable(variable.name)}
+                    />
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* Column 2: CSS and Preview (stacked) */}
+            <div className="flex flex-col gap-6">
+              <div className="p-4 flex-1 overflow-auto">
+                <CssView code={cssOutput} onPaste={handleCssPaste} />
+              </div>
+
+              <div className="flex flex-col gap-6">
+                <div className="p-4 flex-1 overflow-auto">
+                  <ThemePreview resolvedValues={resolvedValues} />
+                </div>
+              </div>
             </div>
           </div>
 
