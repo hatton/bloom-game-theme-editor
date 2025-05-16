@@ -97,6 +97,16 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
       </div>
       
       <div ref={previewRef} className="border rounded-md overflow-hidden">
+        <div 
+          className="p-3 text-center font-medium"
+          style={{
+            backgroundColor: resolvedValues["--game-header-bg-color"] || "#000000",
+            color: resolvedValues["--game-header-color"] || "#ffffff"
+          }}
+        >
+          Instructions in the Header
+        </div>
+        
         {themeTitle && (
           <div 
             className="p-3 text-center font-medium"
