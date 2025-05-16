@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "../../components/ui/button";
 import ColorPicker from "./ColorPicker";
@@ -56,31 +55,33 @@ const VariableRow = ({
         </>
       )}
 
-      {/* Variable display name */}
-      <div className="flex-1 text-sm font-medium">
-        {variable.displayName}
-      </div>
+      {/* Variable display name and controls */}
+      <div className="flex items-center justify-between w-full gap-2">
+        <div className="text-sm font-medium overflow-hidden text-ellipsis whitespace-nowrap">
+          {variable.displayName}
+        </div>
 
-      {/* Color picker and status */}
-      <div className="flex items-center gap-2">
-        <ColorPicker
-          color={value}
-          onChange={onColorChange}
-          isInherited={!isOverridden}
-        />
-        
-        {!isOverridden ? (
-          <span className="text-xs text-editor-inherited">Inherited</span>
-        ) : (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-xs"
-            onClick={onReset}
-          >
-            Reset
-          </Button>
-        )}
+        {/* Color picker and status */}
+        <div className="flex items-center gap-2">
+          <ColorPicker
+            color={value}
+            onChange={onColorChange}
+            isInherited={!isOverridden}
+          />
+
+          {!isOverridden ? (
+            <span className="text-xs text-editor-inherited">Inherited</span>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={onReset}
+            >
+              Reset
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

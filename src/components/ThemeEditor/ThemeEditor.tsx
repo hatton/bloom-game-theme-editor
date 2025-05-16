@@ -55,7 +55,12 @@ import {
   generateId,
 } from "../../utils/theme-utils";
 import { ParsedTheme, Theme } from "../../types/theme-editor";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
 import { Palette } from "lucide-react";
 
 interface ThemeEditorProps {
@@ -70,8 +75,9 @@ const defaultCustomTheme: Theme = {
   slug: "custom",
   isFactory: false,
   variables: {
-    "--game-primary-color": "#9b87f5", // Purple primary
+    "--game-primary-color": "#6a56c2", // Purple primary
     "--game-secondary-color": "#ffffff", // White secondary
+    "--game-button-correct-bg-color": "#833a79",
   },
 };
 
@@ -80,8 +86,14 @@ const ThemeEditor = ({
   onThemeChange,
 }: ThemeEditorProps) => {
   // State
-  const [themes, setThemes] = useState<Theme[]>([defaultCustomTheme, ...factoryThemes, ...initialThemes]);
-  const [selectedThemeId, setSelectedThemeId] = useState<string>(defaultCustomTheme.id); // Default to custom theme
+  const [themes, setThemes] = useState<Theme[]>([
+    defaultCustomTheme,
+    ...factoryThemes,
+    ...initialThemes,
+  ]);
+  const [selectedThemeId, setSelectedThemeId] = useState<string>(
+    defaultCustomTheme.id
+  ); // Default to custom theme
   const [newThemeName, setNewThemeName] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
@@ -146,7 +158,7 @@ const ThemeEditor = ({
 
     const slug = slugify(newThemeName);
     const id = generateId();
-    
+
     const newTheme: Theme = {
       id,
       displayName: newThemeName,
@@ -171,7 +183,7 @@ const ThemeEditor = ({
     const newName = `${selectedTheme.displayName} Copy`;
     const slug = slugify(newName);
     const id = generateId();
-    
+
     const newTheme: Theme = {
       id,
       displayName: newName,
@@ -183,20 +195,6 @@ const ThemeEditor = ({
     setThemes([...themes, newTheme]);
     setSelectedThemeId(id);
     toast.success(`Duplicated theme: ${selectedTheme.displayName}`);
-  };
-
-  const handleDeleteTheme = () => {
-    if (!selectedTheme || selectedTheme.isFactory) return;
-
-    const updatedThemes = themes.filter((theme) => theme.id !== selectedTheme.id);
-    setThemes(updatedThemes);
-    
-    // Select the first theme after deletion
-    if (updatedThemes.length > 0) {
-      setSelectedThemeId(updatedThemes[0].id);
-    }
-    
-    toast.success(`Deleted theme: ${selectedTheme.displayName}`);
   };
 
   const handleRenameTheme = () => {
@@ -225,7 +223,9 @@ const ThemeEditor = ({
 
     // Don't allow changes to factory themes
     if (selectedTheme.isFactory) {
-      toast.error("Factory themes cannot be modified. Duplicate the theme to edit it.");
+      toast.error(
+        "Factory themes cannot be modified. Duplicate the theme to edit it."
+      );
       return;
     }
 
@@ -248,7 +248,8 @@ const ThemeEditor = ({
     if (!selectedTheme) return;
 
     // Create a copy of the variables without the reset one
-    const { [variableName]: _, ...remainingVariables } = selectedTheme.variables;
+    const { [variableName]: _, ...remainingVariables } =
+      selectedTheme.variables;
 
     const updatedTheme: Theme = {
       ...selectedTheme,
@@ -265,49 +266,53 @@ const ThemeEditor = ({
   // Function to parse CSS theme
   const parseCssTheme = (css: string): ParsedTheme => {
     const result: ParsedTheme = {
-      variables: {}
+      variables: {},
     };
-    
+
     // Find theme class selector block
-    const themeMatch = css.match(/\.bloom-page\.game-theme-([a-zA-Z0-9-_]+)\s*{([^}]*)}/);
-    
+    const themeMatch = css.match(
+      /\.bloom-page\.game-theme-([a-zA-Z0-9-_]+)\s*{([^}]*)}/
+    );
+
     if (!themeMatch) {
       throw new Error("Invalid CSS format: No theme class found");
     }
-    
+
     // Extract CSS variables from the block
     const cssBlock = themeMatch[2];
     const variableRegex = /--([a-zA-Z0-9-_]+)\s*:\s*([^;]+);/g;
-    
+
     let match;
     while ((match = variableRegex.exec(cssBlock)) !== null) {
       const name = `--${match[1]}`;
       const value = match[2].trim();
       result.variables[name] = value;
     }
-    
+
     return result;
   };
 
   // Handle CSS paste
   const handleCssPaste = (css: string) => {
     if (!selectedTheme) return;
-    
+
     // Don't allow changes to factory themes
     if (selectedTheme.isFactory) {
-      toast.error("Factory themes cannot be modified. Duplicate the theme to edit it.");
+      toast.error(
+        "Factory themes cannot be modified. Duplicate the theme to edit it."
+      );
       return;
     }
 
     try {
       // Parse CSS to extract variables
       const parsedTheme = parseCssTheme(css);
-      
+
       if (Object.keys(parsedTheme.variables).length === 0) {
         toast.error("No valid CSS variables found in pasted content");
         return;
       }
-      
+
       // Update the theme with parsed variables
       const updatedTheme: Theme = {
         ...selectedTheme,
@@ -319,7 +324,9 @@ const ThemeEditor = ({
       );
 
       setThemes(updatedThemes);
-      toast.success(`Updated theme with ${Object.keys(parsedTheme.variables).length} variables`);
+      toast.success(
+        `Updated theme with ${Object.keys(parsedTheme.variables).length} variables`
+      );
     } catch (error) {
       toast.error("Failed to parse CSS. Make sure the format is correct.");
       console.error("CSS parsing error:", error);
@@ -329,12 +336,14 @@ const ThemeEditor = ({
   // Use Preset Theme
   const handleUsePresetTheme = (presetTheme: Theme) => {
     // Check if a theme with similar ID already exists
-    const existingTheme = themes.find(theme => theme.id === presetTheme.id);
-    
+    const existingTheme = themes.find((theme) => theme.id === presetTheme.id);
+
     if (existingTheme) {
       // Update the existing theme
       const updatedThemes = themes.map((theme) =>
-        theme.id === presetTheme.id ? { ...presetTheme, isFactory: false } : theme
+        theme.id === presetTheme.id
+          ? { ...presetTheme, isFactory: false }
+          : theme
       );
       setThemes(updatedThemes);
       setSelectedThemeId(presetTheme.id);
@@ -356,19 +365,16 @@ const ThemeEditor = ({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Bloom Games Theme Editor</CardTitle>
-              <CardDescription>
-                Customize color themes for your games
-              </CardDescription>
+              <CardTitle>Low Budget Bloom Games Theme Editor</CardTitle>
             </div>
             <div className="flex gap-2">
               <Dialog
                 open={isCreateDialogOpen}
                 onOpenChange={setIsCreateDialogOpen}
               >
-                <DialogTrigger asChild>
+                {/* <DialogTrigger asChild>
                   <Button variant="outline">New Theme</Button>
-                </DialogTrigger>
+                </DialogTrigger> */}
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Create New Theme</DialogTitle>
@@ -385,11 +391,14 @@ const ThemeEditor = ({
                       placeholder="e.g., Dark Blue"
                     />
                     <p className="text-xs text-muted-foreground mt-2">
-                      Theme slug: {newThemeName ? slugify(newThemeName) : "..."} 
+                      Theme slug: {newThemeName ? slugify(newThemeName) : "..."}
                     </p>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsCreateDialogOpen(false)}
+                    >
                       Cancel
                     </Button>
                     <Button onClick={handleCreateTheme}>Create</Button>
@@ -400,211 +409,157 @@ const ThemeEditor = ({
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full mb-4">
-              <TabsTrigger value="editor" className="flex-1">Manual Editor</TabsTrigger>
-              <TabsTrigger value="ideas" className="flex-1">
-                <Palette className="h-4 w-4 mr-2" />
-                Theme Ideas
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="editor" className="mt-0">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <Label htmlFor="theme-select">Select Theme</Label>
-                      <Select
-                        value={selectedThemeId}
-                        onValueChange={handleThemeSelect}
-                      >
-                        <SelectTrigger id="theme-select" className="w-full mt-1">
-                          <SelectValue placeholder="Select a theme" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {/* Factory themes first */}
+          <div className="grid md:grid-cols-2 gap-6 max-w-[870px]">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  {/* <Label htmlFor="theme-select">Select Theme</Label> */}
+                  <Select
+                    value={selectedThemeId}
+                    onValueChange={handleThemeSelect}
+                  >
+                    <SelectTrigger id="theme-select" className="w-full mt-1">
+                      <SelectValue placeholder="Select a theme" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {/* Factory themes first */}
+                      <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                        Factory Themes
+                      </div>
+                      {themes
+                        .filter((theme) => theme.isFactory)
+                        .map((theme) => (
+                          <SelectItem key={theme.id} value={theme.id}>
+                            {theme.displayName}
+                          </SelectItem>
+                        ))}
+                      <Separator className="my-1" />
+                      {/* Custom themes */}
+                      {themes.filter((theme) => !theme.isFactory).length >
+                        0 && (
+                        <>
                           <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                            Factory Themes
+                            Custom Themes
                           </div>
                           {themes
-                            .filter((theme) => theme.isFactory)
+                            .filter((theme) => !theme.isFactory)
                             .map((theme) => (
                               <SelectItem key={theme.id} value={theme.id}>
                                 {theme.displayName}
                               </SelectItem>
                             ))}
-                          <Separator className="my-1" />
-                          {/* Custom themes */}
-                          {themes.filter((theme) => !theme.isFactory).length > 0 && (
-                            <>
-                              <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                                Custom Themes
-                              </div>
-                              {themes
-                                .filter((theme) => !theme.isFactory)
-                                .map((theme) => (
-                                  <SelectItem key={theme.id} value={theme.id}>
-                                    {theme.displayName}
-                                  </SelectItem>
-                                ))}
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Theme actions */}
-                    <div className="flex gap-2 self-end">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleDuplicateTheme}
-                      >
-                        Duplicate
-                      </Button>
-
-                      {!selectedTheme.isFactory && (
-                        <>
-                          <Dialog
-                            open={isRenameDialogOpen}
-                            onOpenChange={setIsRenameDialogOpen}
-                          >
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm">
-                                Rename
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Rename Theme</DialogTitle>
-                                <DialogDescription>
-                                  Enter a new name for {selectedTheme.displayName}
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="py-4">
-                                <Label htmlFor="new-theme-name">New Name</Label>
-                                <Input
-                                  id="new-theme-name"
-                                  value={newThemeName}
-                                  onChange={(e) => setNewThemeName(e.target.value)}
-                                  placeholder={selectedTheme.displayName}
-                                />
-                                <p className="text-xs text-muted-foreground mt-2">
-                                  Theme slug: {newThemeName ? slugify(newThemeName) : "..."}
-                                </p>
-                              </div>
-                              <DialogFooter>
-                                <Button
-                                  variant="outline"
-                                  onClick={() => setIsRenameDialogOpen(false)}
-                                >
-                                  Cancel
-                                </Button>
-                                <Button onClick={handleRenameTheme}>Rename</Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="sm">
-                                Delete
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Theme</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete{" "}
-                                  <span className="font-medium">
-                                    {selectedTheme.displayName}
-                                  </span>
-                                  ? This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={handleDeleteTheme}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
                         </>
                       )}
-                    </div>
-                  </div>
-                  
-                  {selectedTheme.isFactory && (
-                    <div className="p-3 bg-muted rounded-md text-sm">
-                      <div className="flex flex-wrap gap-2">
-                        <div>
-                          <span className="text-xs bg-blue-100 text-blue-800 rounded px-1.5 py-0.5">
-                            Factory Theme
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Theme actions */}
+                <div className="flex gap-2 self-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDuplicateTheme}
+                  >
+                    Duplicate
+                  </Button>
+
+                  {!selectedTheme.isFactory && (
+                    <>
+                      <Dialog
+                        open={isRenameDialogOpen}
+                        onOpenChange={setIsRenameDialogOpen}
+                      >
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            Rename
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Rename Theme</DialogTitle>
+                            <DialogDescription>
+                              Enter a new name for {selectedTheme.displayName}
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="py-4">
+                            <Label htmlFor="new-theme-name">New Name</Label>
+                            <Input
+                              id="new-theme-name"
+                              value={newThemeName}
+                              onChange={(e) => setNewThemeName(e.target.value)}
+                              placeholder={selectedTheme.displayName}
+                            />
+                            <p className="text-xs text-muted-foreground mt-2">
+                              Theme slug:{" "}
+                              {newThemeName ? slugify(newThemeName) : "..."}
+                            </p>
+                          </div>
+                          <DialogFooter>
+                            <Button
+                              variant="outline"
+                              onClick={() => setIsRenameDialogOpen(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button onClick={handleRenameTheme}>Rename</Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </>
                   )}
-
-                  {/* Variable editor */}
-                  <div className="border rounded-md">
-                    <div className="bg-muted p-3 border-b">
-                      <h3 className="text-sm font-medium">Colors</h3>
-                    </div>
-                    <ScrollArea className="h-[500px]">
-                      <div className="p-4">
-                        {cssVariables.map((variable) => (
-                          <VariableRow
-                            key={variable.name}
-                            variable={variable}
-                            value={resolvedValues[variable.name] || "#000000"}
-                            isOverridden={isVariableOverridden(variable.name)}
-                            onColorChange={(value) =>
-                              handleColorChange(variable.name, value)
-                            }
-                            onReset={() => handleResetVariable(variable.name)}
-                          />
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </div>
                 </div>
+              </div>
 
-                <div>
-                  <Label>Theme CSS Preview</Label>
-                  <div className="mt-1">
-                    <CodePreview 
-                      code={cssOutput} 
-                      onPaste={handleCssPaste}
-                    />
-                  </div>
-                  <div className="mt-4">
-                    <Label>Theme Preview</Label>
-                    <div className="mt-2">
-                      <ThemePreview resolvedValues={resolvedValues} />
+              {selectedTheme.isFactory && (
+                <div className="p-3 bg-muted rounded-md text-sm">
+                  <div className="flex flex-wrap gap-2">
+                    <div>
+                      <span className="text-xs bg-blue-100 text-blue-800 rounded px-1.5 py-0.5">
+                        Factory Theme
+                      </span>
                     </div>
                   </div>
                 </div>
+              )}
+
+              {/* Variable editor */}
+              <div className="border rounded-md w-[430px]">
+                <div className="bg-muted p-3 border-b">
+                  <h3 className="text-sm font-medium">Colors</h3>
+                </div>
+                <ScrollArea className="h-[600px]">
+                  <div className="p-4">
+                    {cssVariables.map((variable) => (
+                      <VariableRow
+                        key={variable.name}
+                        variable={variable}
+                        value={resolvedValues[variable.name] || "#000000"}
+                        isOverridden={isVariableOverridden(variable.name)}
+                        onColorChange={(value) =>
+                          handleColorChange(variable.name, value)
+                        }
+                        onReset={() => handleResetVariable(variable.name)}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
-              
-              {/* Contrast Checker spanning full width */}
-              <div className="mt-6">
-                <ContrastChecker resolvedValues={resolvedValues} />
+            </div>
+
+            <div>
+              <div className="mt-1">
+                <CodePreview code={cssOutput} onPaste={handleCssPaste} />
               </div>
-            </TabsContent>
-            
-            <TabsContent value="ideas" className="mt-0">
-              <PresetThemes 
-                onThemeSelect={handleUsePresetTheme}
-                resolvedValues={resolvedValues}
-              />
-            </TabsContent>
-          </Tabs>
+              <br />
+              <ThemePreview resolvedValues={resolvedValues} />
+            </div>
+          </div>
+
+          {/* Contrast Checker spanning full width */}
+          <div className="mt-6">
+            <ContrastChecker resolvedValues={resolvedValues} />
+          </div>
         </CardContent>
       </Card>
     </div>
