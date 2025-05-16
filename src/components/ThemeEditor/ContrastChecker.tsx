@@ -1,6 +1,6 @@
 
 import React from "react";
-import { wcagContrast } from "wcag-contrast-utils";
+import { contrastRatio, passesWCAG } from "wcag-contrast-utils";
 import { Check, X } from "lucide-react";
 import {
   Table,
@@ -79,13 +79,13 @@ const ContrastChecker = ({ resolvedValues }: ContrastCheckerProps) => {
           <TableBody>
             {elementsToCheck.map((element) => {
               // Calculate the contrast ratio
-              const contrastRatio = wcagContrast(element.textColor, element.bgColor).ratio;
+              const ratio = contrastRatio(element.textColor, element.bgColor);
               
               // Determine if it passes various WCAG criteria
-              const passesAASmall = contrastRatio >= 4.5;
-              const passesAALarge = contrastRatio >= 3;
-              const passesAAASmall = contrastRatio >= 7;
-              const passesAAALarge = contrastRatio >= 4.5;
+              const passesAASmall = passesWCAG("AA", "normal", ratio);
+              const passesAALarge = passesWCAG("AA", "large", ratio);
+              const passesAAASmall = passesWCAG("AAA", "normal", ratio);
+              const passesAAALarge = passesWCAG("AAA", "large", ratio);
 
               return (
                 <TableRow key={element.name}>
@@ -99,7 +99,7 @@ const ContrastChecker = ({ resolvedValues }: ContrastCheckerProps) => {
                     {element.name}
                   </TableCell>
                   <TableCell>
-                    {contrastRatio.toFixed(2)}:1
+                    {ratio.toFixed(2)}:1
                   </TableCell>
                   <TableCell>
                     {passesAASmall ? (
