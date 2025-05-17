@@ -456,7 +456,7 @@ const ThemeEditor = ({
           )}
 
           {/* Main Content Grid (Colors | Preview / CSS | Contrast Check) */}
-          <div className="grid md:grid-cols-[minmax(0,_1fr)_minmax(0,_1fr)_minmax(0,_1fr)] lg:grid-cols-[minmax(300px,_430px)_minmax(0,_1fr)_minmax(0,_1fr)] gap-6 mb-6">
+          <div className="grid md:grid-cols-[minmax(0,_1fr)_minmax(0,_510px)_minmax(0,_350px)] lg:grid-cols-[minmax(300px,_430px)_minmax(0,_510px)_minmax(0,_350px)] gap-6 mb-6">
             {/* Column 1: Colors */}
             <div className="border rounded-md">
               <div className="bg-muted p-3 border-b">
@@ -483,7 +483,7 @@ const ThemeEditor = ({
             </div>
 
             {/* Column 2: Preview and CSS (stacked) */}
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 max-w-[510px]">
               {/* Row 1: Preview - Assuming ThemePreview is a self-contained card */}
               <ThemePreview resolvedValues={resolvedValues} />
 
@@ -492,8 +492,7 @@ const ThemeEditor = ({
             </div>
 
             {/* Column 3: Contrast Check - Assuming ContrastChecker is a self-contained card with its own scrolling */}
-            <div>
-              {" "}
+            <div className="max-w-[350px]">
               {/* This div acts as the grid cell for the third column */}
               <ContrastChecker resolvedValues={resolvedValues} />
             </div>

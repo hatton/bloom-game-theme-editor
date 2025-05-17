@@ -34,22 +34,22 @@ const CssView = ({ code, onPaste }: CssViewProps) => {
         <h3 className="text-sm font-medium">CSS</h3>
         <div className="flex gap-2">
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="h-8 px-2"
             onClick={handlePaste}
+            className="ml-auto flex gap-1 items-center"
           >
-            <ClipboardPaste className="h-4 w-4 mr-2" />
-            Paste
+            <Copy className="h-4 w-4" />
+            <span>Paste CSS</span>
           </Button>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="h-8 px-2"
             onClick={handleCopy}
+            className="ml-auto flex gap-1 items-center"
           >
-            <Copy className="h-4 w-4 mr-2" />
-            Copy
+            <Copy className="h-4 w-4" />
+            <span>Copy CSS</span>
           </Button>
         </div>
       </div>
