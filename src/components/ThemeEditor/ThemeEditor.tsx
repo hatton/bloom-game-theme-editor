@@ -498,23 +498,23 @@ const ThemeEditor = ({
                   ))}
                 </div>
               </ScrollArea>
-            </div>{" "}
+            </div>
             {/* Column 2: CSS and Preview (stacked) */}
             <div className="flex flex-col gap-0">
               {/* Row 1 */}
-              <div className="p-4 flex-1 overflow-auto">
-                <div className="w-[515px]">
-                  <ThemePreview resolvedValues={resolvedValues} />
-                </div>
+
+              <div className="w-[515px]">
+                <ThemePreview resolvedValues={resolvedValues} />
               </div>
+              <br />
               {/* Row 2 */}
-              <div className="grid grid-cols-2">
-                <div className="p-4 w-[550px]">
-                  <ContrastChecker resolvedValues={resolvedValues} />
-                </div>
-                <div className="p-4">
-                  <CssView code={cssOutput} onPaste={handleCssPaste} />
-                </div>
+
+              <div className="p-0 w-[515px]">
+                <ContrastChecker resolvedValues={resolvedValues} />
+              </div>
+              <br />
+              <div className="p-0 w-[515px]">
+                <CssView code={cssOutput} onPaste={handleCssPaste} />
               </div>
             </div>
           </div>
