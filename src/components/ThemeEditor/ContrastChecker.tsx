@@ -92,7 +92,6 @@ const ContrastChecker = ({ resolvedValues }: ContrastCheckerProps) => {
           <TableHeader>
             <TableRow>
               <TableHead>Element</TableHead>
-              <TableHead>Contrast</TableHead>
               <TableHead className="whitespace-nowrap">Good (AA)</TableHead>
               <TableHead className="whitespace-nowrap">Best (AAA)</TableHead>
             </TableRow>
@@ -110,6 +109,8 @@ const ContrastChecker = ({ resolvedValues }: ContrastCheckerProps) => {
                 ? ratio >= 4.5 // AAA large text
                 : ratio >= 7.0; // AAA small text
 
+              const contrastTitle = `Contrast: ${ratio.toFixed(2)}:1`;
+
               return (
                 <TableRow key={element.name}>
                   <TableCell
@@ -118,18 +119,18 @@ const ContrastChecker = ({ resolvedValues }: ContrastCheckerProps) => {
                       color: element.textColor,
                     }}
                     className="font-medium"
+                    title={contrastTitle}
                   >
                     {element.name}
                   </TableCell>
-                  <TableCell>{ratio.toFixed(2)}:1</TableCell>
-                  <TableCell>
+                  <TableCell title={contrastTitle}>
                     {passesAA ? (
                       <Check className="text-green-500" />
                     ) : (
                       <X className="text-red-500" />
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell title={contrastTitle}>
                     {passesAAA ? (
                       <Check className="text-green-500" />
                     ) : (

@@ -503,11 +503,13 @@ const ThemeEditor = ({
             <div className="flex flex-col gap-0">
               {/* Row 1 */}
               <div className="p-4 flex-1 overflow-auto">
-                <ThemePreview resolvedValues={resolvedValues} />
+                <div className="w-[515px]">
+                  <ThemePreview resolvedValues={resolvedValues} />
+                </div>
               </div>
               {/* Row 2 */}
               <div className="grid grid-cols-2">
-                <div className="p-4">
+                <div className="p-4 w-[550px]">
                   <ContrastChecker resolvedValues={resolvedValues} />
                 </div>
                 <div className="p-4">

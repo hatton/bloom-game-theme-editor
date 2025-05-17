@@ -58,14 +58,6 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
       const height = Math.ceil(rect.height);
 
       const canvas = await html2canvas(previewElement, {
-        //backgroundColor: "#00000000", // Transparent
-        // scale: 2, // Higher quality
-        // width,
-        // height,
-        // windowWidth: width,
-        // windowHeight: height,
-        // x: rect.x,
-        // y: rect.y,
         logging: false,
         removeContainer: true, // Cleanup temporary elements
       });
@@ -115,7 +107,6 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
           <span>Copy Image</span>
         </Button>
       </div>
-      <br />
 
       <div ref={previewRef} className="border rounded-md overflow-hidden">
         <div
