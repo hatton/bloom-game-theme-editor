@@ -290,27 +290,6 @@ const ThemeEditor = ({
     }
   };
 
-  // Use Preset Theme
-  const handleUsePresetTheme = (presetTheme: Theme) => {
-    // Check if a theme with similar ID already exists
-    const existingTheme = themes.find((theme) => theme.id === presetTheme.id);
-
-    if (existingTheme) {
-      // Update the existing theme
-      const updatedThemes = themes.map((theme) =>
-        theme.id === presetTheme.id
-          ? { ...presetTheme, isFactory: false }
-          : theme
-      );
-      setThemes(updatedThemes);
-      setSelectedThemeId(presetTheme.id);
-    } else {
-      // Add as a new theme
-      setThemes([...themes, { ...presetTheme, isFactory: false }]);
-      setSelectedThemeId(presetTheme.id);
-    }
-  };
-
   // We render nothing if there's no selected theme
   if (!selectedTheme) {
     return <div>Loading theme editor...</div>;
@@ -365,6 +344,7 @@ const ThemeEditor = ({
             </div>
           </div>
         </CardHeader>
+
         <CardContent>
           {/* Row 1: Theme Selector and Actions */}
           <div className="flex flex-wrap items-center gap-2 mb-6">
@@ -475,14 +455,16 @@ const ThemeEditor = ({
             </div>
           )}
 
-          {/* Main Content Grid (Colors | CSS / Preview) */}
-          <div className="grid md:grid-cols-[minmax(0,_1fr)_minmax(0,_1fr)] lg:grid-cols-[minmax(300px,_430px)_minmax(0,_1fr)] gap-6 mb-6">
+          {/* Main Content Grid (Colors | Preview / CSS | Contrast Check) */}
+          <div className="grid md:grid-cols-[minmax(0,_1fr)_minmax(0,_1fr)_minmax(0,_1fr)] lg:grid-cols-[minmax(300px,_430px)_minmax(0,_1fr)_minmax(0,_1fr)] gap-6 mb-6">
             {/* Column 1: Colors */}
             <div className="border rounded-md">
               <div className="bg-muted p-3 border-b">
                 <h3 className="text-sm font-medium">Colors</h3>
               </div>
-              <ScrollArea className="h-[600px]">
+              <ScrollArea className="h-[calc(100vh_-_200px)]">
+                {" "}
+                {/* Adjusted height for better fit */}
                 <div className="p-4">
                   {cssVariables.map((variable) => (
                     <VariableRow
@@ -499,23 +481,21 @@ const ThemeEditor = ({
                 </div>
               </ScrollArea>
             </div>
-            {/* Column 2: CSS and Preview (stacked) */}
-            <div className="flex flex-col gap-0">
-              {/* Row 1 */}
 
-              <div className="w-[515px]">
-                <ThemePreview resolvedValues={resolvedValues} />
-              </div>
-              <br />
-              {/* Row 2 */}
+            {/* Column 2: Preview and CSS (stacked) */}
+            <div className="flex flex-col gap-6">
+              {/* Row 1: Preview - Assuming ThemePreview is a self-contained card */}
+              <ThemePreview resolvedValues={resolvedValues} />
 
-              <div className="p-0 w-[515px]">
-                <ContrastChecker resolvedValues={resolvedValues} />
-              </div>
-              <br />
-              <div className="p-0 w-[515px]">
-                <CssView code={cssOutput} onPaste={handleCssPaste} />
-              </div>
+              {/* Row 2: CSS - Assuming CssView is a self-contained card */}
+              <CssView code={cssOutput} onPaste={handleCssPaste} />
+            </div>
+
+            {/* Column 3: Contrast Check - Assuming ContrastChecker is a self-contained card with its own scrolling */}
+            <div>
+              {" "}
+              {/* This div acts as the grid cell for the third column */}
+              <ContrastChecker resolvedValues={resolvedValues} />
             </div>
           </div>
         </CardContent>
