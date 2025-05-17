@@ -49,9 +49,25 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
       // Use html-to-image to convert the div to a canvas
       const html2canvas = (await import("html2canvas")).default;
 
-      const canvas = await html2canvas(previewRef.current, {
-        backgroundColor: null,
-        scale: 2, // Higher quality
+      // Get the preview element
+      const previewElement = previewRef.current;
+
+      // Get accurate dimensions
+      const rect = previewElement.getBoundingClientRect();
+      const width = Math.ceil(rect.width);
+      const height = Math.ceil(rect.height);
+
+      const canvas = await html2canvas(previewElement, {
+        //backgroundColor: "#00000000", // Transparent
+        // scale: 2, // Higher quality
+        // width,
+        // height,
+        // windowWidth: width,
+        // windowHeight: height,
+        // x: rect.x,
+        // y: rect.y,
+        logging: false,
+        removeContainer: true, // Cleanup temporary elements
       });
 
       // Convert canvas to blob
@@ -157,7 +173,7 @@ const ThemePreview = ({ resolvedValues, themeTitle }: ThemePreviewProps) => {
               className="px-3 py-1 rounded text-sm"
               style={{
                 backgroundColor:
-                  resolvedValues["--game-button-correct-bg-color"] || "#000000",
+                  resolvedValues["--game-button-correct-bg-color"] || "#008000",
                 color:
                   resolvedValues["--game-button-correct-color"] || "#ffffff",
                 fontSize: BUTTON_TEXT_SIZE,
