@@ -82,7 +82,6 @@ const ThemeEditor = ({
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [cssOutput, setCssOutput] = useState("");
-  const [activeTab, setActiveTab] = useState("editor");
 
   const selectedTheme = useMemo(
     () => themes.find((theme) => theme.id === selectedThemeId) || themes[0],
@@ -452,6 +451,7 @@ const ThemeEditor = ({
               isVariableOverridden={isVariableOverridden}
               onColorChange={handleColorChange}
               onResetVariable={handleResetVariable}
+              selectedTheme={selectedTheme}
             />
 
             {/* Column 2: Preview and CSS (stacked) */}
