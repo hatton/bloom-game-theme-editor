@@ -72,14 +72,20 @@ const VariableRow = ({
           {!isOverridden ? (
             <span className="text-xs text-editor-inherited">Inherited</span>
           ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2 text-xs"
-              onClick={onReset}
-            >
-              Reset
-            </Button>
+            <>
+              {variable.level > 1 ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  onClick={onReset}
+                >
+                  Reset
+                </Button>
+              ) : variable.level === 0 ? (
+                <div className="h-7 px-2 w-[63px]"></div> // Spacer with same dimensions as the button
+              ) : null}
+            </>
           )}
         </div>
       </div>

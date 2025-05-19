@@ -32,6 +32,7 @@ import { Separator } from "../../components/ui/separator";
 import { toast } from "sonner";
 import VariableRow from "./VariableRow";
 import CssView from "./CssView";
+import ColorsEditor from "./ColorsEditor";
 import ThemePreview from "./ThemePreview";
 import ContrastChecker from "./ContrastChecker";
 import {
@@ -442,45 +443,16 @@ const ThemeEditor = ({
             </div>
           </div>
 
-          {/* Factory Theme Notice (if applicable) */}
-          {selectedTheme.isFactory && (
-            <div className="p-3 bg-muted rounded-md text-sm mb-6">
-              <div className="flex flex-wrap gap-2">
-                <div>
-                  <span className="text-xs bg-blue-100 text-blue-800 rounded px-1.5 py-0.5">
-                    Factory Theme
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Main Content Grid (Colors | Preview / CSS | Contrast Check) */}
           <div className="grid md:grid-cols-[minmax(0,_1fr)_minmax(0,_510px)_minmax(0,_350px)] lg:grid-cols-[minmax(300px,_430px)_minmax(0,_510px)_minmax(0,_350px)] gap-6 mb-6">
             {/* Column 1: Colors */}
-            <div className="border rounded-md">
-              <div className="bg-muted p-3 border-b">
-                <h3 className="text-sm font-medium">Colors</h3>
-              </div>
-              <ScrollArea className="h-[calc(100vh_-_200px)]">
-                {" "}
-                {/* Adjusted height for better fit */}
-                <div className="p-4">
-                  {cssVariables.map((variable) => (
-                    <VariableRow
-                      key={variable.name}
-                      variable={variable}
-                      value={resolvedValues[variable.name] || "#000000"}
-                      isOverridden={isVariableOverridden(variable.name)}
-                      onColorChange={(value) =>
-                        handleColorChange(variable.name, value)
-                      }
-                      onReset={() => handleResetVariable(variable.name)}
-                    />
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
+            <ColorsEditor
+              cssVariables={cssVariables}
+              resolvedValues={resolvedValues}
+              isVariableOverridden={isVariableOverridden}
+              onColorChange={handleColorChange}
+              onResetVariable={handleResetVariable}
+            />
 
             {/* Column 2: Preview and CSS (stacked) */}
             <div className="flex flex-col gap-6 max-w-[510px]">

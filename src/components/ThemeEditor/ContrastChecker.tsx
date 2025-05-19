@@ -114,7 +114,9 @@ const ContrastChecker = ({ resolvedValues }: ContrastCheckerProps) => {
             <TableRow>
               <TableHead>Element</TableHead>
               <TableHead className="whitespace-nowrap">Good (AA)</TableHead>
-              <TableHead className="whitespace-nowrap">Best (AAA)</TableHead>
+              <TableHead className="whitespace-nowrap">
+                Exceptional (AAA)
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
